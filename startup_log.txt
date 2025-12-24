@@ -1,0 +1,811 @@
+INFO:     Will watch for changes in these directories: ['/Users/genea1/selenium-mcp']
+ERROR:    [Errno 48] Address already in use
+──────────────────────────────────────────────
+🕒 2025-11-07 16:28:22 — MCP Restart
+✅ MCP server is healthy and responding.
+
+=== Selenium MCP CLI Client ===
+Connected to: http://localhost:8001/mcp/invoke
+Discovered tools: selenium_open_page, selenium_click, selenium_screenshot, selenium_get_text
+Type 'help' for options, 'exit' to quit.
+
+mcp> 🤖 Interpreting as natural language: open the Apple Inc URL
+🧠 Interpreted as selenium_open_page with args {'url': 'https://www.apple.com'}
+🔹 Invoking MCP tool: selenium_open_page
+🔸 Arguments: {'url': 'https://www.apple.com'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_open_page",
+  "result": {
+    "title": "Apple"
+  }
+}
+mcp> 🤖 Interpreting as natural language: code session_log.txt
+🧠 Interpreted as selenium_screenshot with args {'filename': 'session_log.txt'}
+🔹 Invoking MCP tool: selenium_screenshot
+🔸 Arguments: {'filename': 'session_log.txt'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_screenshot",
+  "result": {
+    "screenshot": "session_log.txt"
+  }
+}
+mcp> INFO:     Will watch for changes in these directories: ['/Users/genea1/selenium-mcp']
+ERROR:    [Errno 48] Address already in use
+──────────────────────────────────────────────
+🕒 2025-11-07 17:16:23 — MCP Restart
+✅ MCP server is healthy and responding.
+
+=== Selenium MCP CLI Client ===
+Connected to: http://localhost:8001/mcp/invoke
+Discovered tools: selenium_open_page, selenium_click, selenium_screenshot, selenium_get_text
+Type 'help' for options, 'exit' to quit.
+
+mcp> 🤖 Interpreting as natural language: please open apple.com
+🧠 Interpreted as selenium_open_page with args {'url': 'https://www.apple.com'}
+🔹 Invoking MCP tool: selenium_open_page
+🔸 Arguments: {'url': 'https://www.apple.com'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_open_page",
+  "result": {
+    "title": "Apple"
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'h1'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'h1'}
+
+❌ HTTP error: 500 Server Error: Internal Server Error for url: http://localhost:8001/mcp/invoke
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+mcp> INFO:     Will watch for changes in these directories: ['/Users/genea1/selenium-mcp']
+ERROR:    [Errno 48] Address already in use
+──────────────────────────────────────────────
+🕒 2025-11-07 17:24:27 — MCP Restart
+✅ MCP server is healthy and responding.
+
+=== Selenium MCP CLI Client ===
+Connected to: http://localhost:8001/mcp/invoke
+Discovered tools: selenium_open_page, selenium_click, selenium_screenshot, selenium_get_text
+Type 'help' for options, 'exit' to quit.
+
+mcp> 🤖 Interpreting as natural language: please open apple.com
+🧠 Interpreted as selenium_open_page with args {'url': 'https://www.apple.com'}
+🔹 Invoking MCP tool: selenium_open_page
+🔸 Arguments: {'url': 'https://www.apple.com'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_open_page",
+  "result": {
+    "title": "Apple"
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+⚠️  Tool chaining suggestion failed: Connection error.
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+⚠️  Log cleanup failed: name 'glob' is not defined
+mcp> INFO:     Will watch for changes in these directories: ['/Users/genea1/selenium-mcp']
+ERROR:    [Errno 48] Address already in use
+──────────────────────────────────────────────
+🕒 2025-11-07 17:30:13 — MCP Restart
+✅ MCP server is healthy and responding.
+
+=== Selenium MCP CLI Client ===
+Connected to: http://localhost:8001/mcp/invoke
+Discovered tools: selenium_open_page, selenium_click, selenium_screenshot, selenium_get_text
+Type 'help' for options, 'exit' to quit.
+
+mcp> 🤖 Interpreting as natural language: open Apple URL
+❌ LLM interpretation failed: Connection error.
+❓ Sorry, I couldn't interpret that instruction.
+mcp> 🤖 Interpreting as natural language: open the Apple Inc URL
+❌ LLM interpretation failed: Connection error.
+❓ Sorry, I couldn't interpret that instruction.
+mcp> 🤖 Interpreting as natural language: open the Apple Inc URL
+❌ LLM interpretation failed: Connection error.
+❓ Sorry, I couldn't interpret that instruction.
+mcp> 🤖 Interpreting as natural language: open Apple URL
+🧠 Interpreted as selenium_open_page with args {'url': 'https://www.apple.com'}
+🔹 Invoking MCP tool: selenium_open_page
+🔸 Arguments: {'url': 'https://www.apple.com'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_open_page",
+  "result": {
+    "title": "Apple"
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'h1'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'h1'}
+
+❌ HTTP error: 500 Server Error: Internal Server Error for url: http://localhost:8001/mcp/invoke
+mcp> INFO:     Will watch for changes in these directories: ['/Users/genea1/selenium-mcp']
+ERROR:    [Errno 48] Address already in use
+──────────────────────────────────────────────
+🕒 2025-11-07 17:41:52 — MCP Restart
+✅ MCP server is healthy and responding.
+
+=== Selenium MCP CLI Client ===
+Connected to: http://localhost:8001/mcp/invoke
+Discovered tools: selenium_open_page, selenium_click, selenium_screenshot, selenium_get_text
+Type 'help' for options, 'exit' to quit.
+
+mcp> 🤖 Interpreting as natural language: Open Apple URL
+🧠 Interpreted as selenium_open_page with args {'url': 'https://www.apple.com'}
+🔹 Invoking MCP tool: selenium_open_page
+🔸 Arguments: {'url': 'https://www.apple.com'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_open_page",
+  "result": {
+    "title": "Apple"
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': '<appropriate_selector>'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': '<appropriate_selector>'}
+
+❌ HTTP error: 500 Server Error: Internal Server Error for url: http://localhost:8001/mcp/invoke
+mcp> selector (The CSS selector for the element to extract text from.): 🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'selector (The CSS selector for the element to extract text from.): h1'}
+
+❌ HTTP error: 500 Server Error: Internal Server Error for url: http://localhost:8001/mcp/invoke
+mcp> INFO:     Will watch for changes in these directories: ['/Users/genea1/selenium-mcp']
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [27901] using StatReload
+[BOOT] MCP_VERSION pre-initialized as v20251107a
+[INFO] Launching MCP Server (version=v20251107a)
+[INFO] MCP version updated to v20251107i
+[BOOT] MCP_VERSION initialized → v20251107i
+🚀 Render rebuild verified: 2025-11-07T18:08:08.343447 | MCP_VERSION: v20251107i
+INFO:     Started server process [27906]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+──────────────────────────────────────────────
+🕒 2025-11-07 18:08:10 — MCP Restart
+[BOOT] FORCE_REBUILD_TAG = v20251027b
+INFO:     127.0.0.1:49844 - "GET /health HTTP/1.1" 200 OK
+✅ MCP server is healthy and responding.
+🧩 [CHECKPOINT] serve_schema() invoked fresh at 2025-11-07T18:08:11.314443
+🧠 [CHECKPOINT] Tools re-parsed into JSON array (4 items)
+🧩 [CHECKPOINT] Agent Builder detection → accept='**' | user_agent='python-requests2.32.5' | result=False
+🚀 [FINAL-RETURN] Returning Full MCP schema | Version=v20251107i | Tools=4
+INFO:     127.0.0.1:49846 - "GET /mcp/schema HTTP/1.1" 200 OK
+
+=== Selenium MCP CLI Client ===
+Connected to: http://localhost:8001/mcp/invoke
+Discovered tools: selenium_open_page, selenium_click, selenium_screenshot, selenium_get_text
+Type 'help' for options, 'exit' to quit.
+
+mcp> The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:49850 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:49894 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:49917 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:49939 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:49961 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:49983 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50010 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50032 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50055 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50082 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50107 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50128 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50151 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50173 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50195 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50217 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50239 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50261 - "POST /mcp/invoke HTTP/1.1" 200 OK
+The chromedriver version (141.0.7390.78) detected in PATH at /usr/local/bin/chromedriver might not be compatible with the detected chrome version (142.0.7444.135); currently, chromedriver 142.0.7444.61 is recommended for chrome 142.*, so it is advised to delete the driver in PATH and retry
+INFO:     127.0.0.1:50283 - "POST /mcp/invoke HTTP/1.1" 200 OK
+INFO:     Will watch for changes in these directories: ['/Users/genea1/selenium-mcp']
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [29779] using StatReload
+[BOOT] MCP_VERSION pre-initialized as v20251107a
+[INFO] Launching MCP Server (version=v20251107a)
+[INFO] MCP version updated to v20251107j
+[BOOT] MCP_VERSION initialized → v20251107j
+🚀 Render rebuild verified: 2025-11-07T18:11:52.797899 | MCP_VERSION: v20251107j
+INFO:     Started server process [29784]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+──────────────────────────────────────────────
+🕒 2025-11-07 18:11:55 — MCP Restart
+[BOOT] FORCE_REBUILD_TAG = v20251027b
+INFO:     127.0.0.1:50312 - "GET /health HTTP/1.1" 200 OK
+✅ MCP server is healthy and responding.
+🧩 [CHECKPOINT] serve_schema() invoked fresh at 2025-11-07T18:11:55.774331
+🧠 [CHECKPOINT] Tools re-parsed into JSON array (4 items)
+🧩 [CHECKPOINT] Agent Builder detection → accept='**' | user_agent='python-requests2.32.5' | result=False
+🚀 [FINAL-RETURN] Returning Full MCP schema | Version=v20251107j | Tools=4
+INFO:     127.0.0.1:50314 - "GET /mcp/schema HTTP/1.1" 200 OK
+
+=== Selenium MCP CLI Client ===
+Connected to: http://localhost:8001/mcp/invoke
+Discovered tools: selenium_open_page, selenium_click, selenium_screenshot, selenium_get_text
+Type 'help' for options, 'exit' to quit.
+
+mcp> INFO:     Will watch for changes in these directories: ['/Users/genea1/selenium-mcp']
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [30169] using StatReload
+[BOOT] MCP_VERSION pre-initialized as v20251107a
+[INFO] Launching MCP Server (version=v20251107a)
+[INFO] MCP version updated to v20251107k
+[BOOT] MCP_VERSION initialized → v20251107k
+🚀 Render rebuild verified: 2025-11-07T18:12:50.046510 | MCP_VERSION: v20251107k
+INFO:     Started server process [30174]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+──────────────────────────────────────────────
+🕒 2025-11-07 18:12:52 — MCP Restart
+[BOOT] FORCE_REBUILD_TAG = v20251027b
+INFO:     127.0.0.1:50320 - "GET /health HTTP/1.1" 200 OK
+✅ MCP server is healthy and responding.
+🧩 [CHECKPOINT] serve_schema() invoked fresh at 2025-11-07T18:12:53.019518
+🧠 [CHECKPOINT] Tools re-parsed into JSON array (4 items)
+🧩 [CHECKPOINT] Agent Builder detection → accept='**' | user_agent='python-requests2.32.5' | result=False
+🚀 [FINAL-RETURN] Returning Full MCP schema | Version=v20251107k | Tools=4
+INFO:     127.0.0.1:50322 - "GET /mcp/schema HTTP/1.1" 200 OK
+
+=== Selenium MCP CLI Client ===
+Connected to: http://localhost:8001/mcp/invoke
+Discovered tools: selenium_open_page, selenium_click, selenium_screenshot, selenium_get_text
+Type 'help' for options, 'exit' to quit.
+
+mcp> INFO:     127.0.0.1:50328 - "POST /mcp/invoke HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50371 - "POST /mcp/invoke HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50389 - "POST /mcp/invoke HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50410 - "POST /mcp/invoke HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50429 - "POST /mcp/invoke HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50451 - "POST /mcp/invoke HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50499 - "POST /mcp/invoke HTTP/1.1" 200 OK
+INFO:     Will watch for changes in these directories: ['/Users/genea1/selenium-mcp']
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [32887] using StatReload
+[BOOT] MCP_VERSION pre-initialized as v20251108a
+[INFO] Launching MCP Server (version=v20251108a)
+[INFO] MCP version updated to v20251108a
+[BOOT] MCP_VERSION initialized → v20251108a
+🚀 Render rebuild verified: 2025-11-08T13:40:23.247553 | MCP_VERSION: v20251108a
+INFO:     Started server process [32892]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+──────────────────────────────────────────────
+🕒 2025-11-08 13:40:25 — MCP Restart
+[BOOT] FORCE_REBUILD_TAG = v20251027b
+INFO:     127.0.0.1:51780 - "GET /health HTTP/1.1" 200 OK
+✅ MCP server is healthy and responding.
+🧩 [CHECKPOINT] serve_schema() invoked fresh at 2025-11-08T13:40:25.605650
+🧠 [CHECKPOINT] Tools re-parsed into JSON array (4 items)
+🧩 [CHECKPOINT] Agent Builder detection → accept='**' | user_agent='python-requests2.32.5' | result=False
+🚀 [FINAL-RETURN] Returning Full MCP schema | Version=v20251108a | Tools=4
+INFO:     127.0.0.1:51782 - "GET /mcp/schema HTTP/1.1" 200 OK
+
+=== Selenium MCP CLI Client ===
+Connected to: http://localhost:8001/mcp/invoke
+Discovered tools: selenium_open_page, selenium_click, selenium_screenshot, selenium_get_text
+Type 'help' for options, 'exit' to quit.
+
+mcp> INFO:     127.0.0.1:51886 - "GET /health HTTP/1.1" 200 OK
+🧩 [CHECKPOINT] serve_schema() invoked fresh at 2025-11-08T14:06:41.942549
+🧠 [CHECKPOINT] Tools re-parsed into JSON array (4 items)
+🧩 [CHECKPOINT] Agent Builder detection → accept='**' | user_agent='python-requests2.32.5' | result=False
+🚀 [FINAL-RETURN] Returning Full MCP schema | Version=v20251108a | Tools=4
+INFO:     127.0.0.1:52193 - "GET /mcp/schema HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52195 - "POST /mcp/invoke HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52254 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52354 - "POST /mcp/invoke HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'mcp_client.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [32892]
+[BOOT] MCP_VERSION pre-initialized as v20251108a
+[INFO] Launching MCP Server (version=v20251108a)
+[INFO] MCP version updated to v20251108b
+[BOOT] MCP_VERSION initialized → v20251108b
+🚀 Render rebuild verified: 2025-11-08T14:33:33.659109 | MCP_VERSION: v20251108b
+INFO:     Started server process [34128]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'mcp_client.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [34128]
+[BOOT] MCP_VERSION pre-initialized as v20251108a
+[INFO] Launching MCP Server (version=v20251108a)
+[INFO] MCP version updated to v20251108c
+[BOOT] MCP_VERSION initialized → v20251108c
+🚀 Render rebuild verified: 2025-11-08T14:36:10.106048 | MCP_VERSION: v20251108c
+INFO:     Started server process [34157]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['/Users/genea1/selenium-mcp']
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [34581] using StatReload
+[BOOT] MCP_VERSION pre-initialized as v20251108a
+[INFO] Launching MCP Server (version=v20251108a)
+[INFO] MCP version updated to v20251108d
+[BOOT] MCP_VERSION initialized → v20251108d
+🚀 Render rebuild verified: 2025-11-08T14:38:02.043355 | MCP_VERSION: v20251108d
+INFO:     Started server process [34586]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+──────────────────────────────────────────────
+🕒 2025-11-08 14:38:04 — MCP Restart
+[BOOT] FORCE_REBUILD_TAG = v20251027b
+INFO:     127.0.0.1:52640 - "GET /health HTTP/1.1" 200 OK
+✅ MCP server is healthy and responding.
+🧩 [CHECKPOINT] serve_schema() invoked fresh at 2025-11-08T14:38:05.015924
+🧠 [CHECKPOINT] Tools re-parsed into JSON array (4 items)
+🧩 [CHECKPOINT] Agent Builder detection → accept='**' | user_agent='python-requests2.32.5' | result=False
+🚀 [FINAL-RETURN] Returning Full MCP schema | Version=v20251108d | Tools=4
+INFO:     127.0.0.1:52642 - "GET /mcp/schema HTTP/1.1" 200 OK
+
+=== Selenium MCP CLI Client ===
+Connected to: http://localhost:8001/mcp/invoke
+Discovered tools: selenium_open_page, selenium_click, selenium_screenshot, selenium_get_text
+Type 'help' for options, 'exit' to quit.
+
+mcp> 🤖 Interpreting as natural language: python mcp_client.py --url http://localhost:8001/mcp/invoke
+❌ LLM interpretation failed: Expecting value: line 1 column 1 (char 0)
+❓ Sorry, I couldn't interpret that instruction.
+mcp> INFO:     127.0.0.1:52658 - "POST /mcp/invoke HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52703 - "POST /mcp/invoke HTTP/1.1" 200 OK
+🤖 Interpreting as natural language: please open apple.com
+🧠 Interpreted as selenium_open_page with args {'url': 'https://www.apple.com'}
+🔹 Invoking MCP tool: selenium_open_page
+🔸 Arguments: {'url': 'https://www.apple.com'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_open_page",
+  "result": {
+    "title": "Apple"
+  }
+}
+🤖 GPT suggests next tool: selenium_get_text → {'selector': 'body'}
+🔹 Invoking MCP tool: selenium_get_text
+🔸 Arguments: {'selector': 'body'}
+
+✅ MCP Response:
+{
+  "status": "success",
+  "tool": "selenium_get_text",
+  "result": {
+    "text": ""
+  }
+}
+🛑 Detected repetitive tool suggestion 'selenium_get_text'. Stopping chain.
+mcp> 
+👋 Exiting.

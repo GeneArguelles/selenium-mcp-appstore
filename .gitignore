@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual env
+.venv/
+venv/
+
+# Secrets
+.env
+
+# Logs / artifacts
+logs/
+*.log
+*.tmp
+
+# Browser binaries (do NOT commit drivers)
+chromedriver/
+chromedriver-linux64/
+*.zip
+
+# OS
+.DS_Store

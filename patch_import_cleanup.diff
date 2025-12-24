@@ -1,0 +1,62 @@
+diff --git a/server.py b/server.py
+index 1111111..2222222 100644
+--- a/server.py
++++ b/server.py
+@@ -1,10 +1,39 @@
+ #!/usr/bin/env python3
+ # ==========================================================
+ # Selenium MCP Server (auto-versioned)
+ # ==========================================================
+ # Provides headless browser automation endpoints for OpenAI
+ # Agent Builder via the Model Context Protocol (MCP).
+ # ==========================================================
+-
+-# ------------------------------
+-# Imports
+-# ------------------------------
+-import os
+-import re
+-import time
+-import platform
+-import hashlib
+-import requests
+-from datetime import datetime
+-from fastapi import FastAPI, Depends, Request
+-from fastapi.responses import JSONResponse, RedirectResponse
+-from fastapi.middleware.cors import CORSMiddleware
+-from pydantic import BaseModel
+-from selenium import webdriver
+-from selenium.webdriver.chrome.options import Options
++ 
++# ------------------------------
++# Consolidated Imports
++# ------------------------------
++import os
++import re
++import time
++import json
++import string
++import platform
++import hashlib
++import subprocess
++import requests
++from datetime import datetime
++
++# ------------------------------
++# FastAPI & Dependencies
++# ------------------------------
++from fastapi import FastAPI, Depends, Request
++from fastapi.responses import JSONResponse, RedirectResponse
++from fastapi.middleware.cors import CORSMiddleware
++from pydantic import BaseModel
++
++# ------------------------------
++# Selenium
++# ------------------------------
++from selenium import webdriver
++from selenium.webdriver.chrome.options import Options
++
++# ------------------------------
++# Boot Info Log
++# ------------------------------
++print(f"[BOOT] Starting {platform.python_implementation()} {platform.python_version()} with Selenium MCP Server")

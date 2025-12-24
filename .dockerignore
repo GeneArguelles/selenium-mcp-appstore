@@ -1,0 +1,9 @@
+.venv
+__pycache__
+logs
+*.log
+chromedriver
+chromedriver-linux64
+*.zip
+MCP_Selenium_Bridge_White_Paper.pdf
+reports

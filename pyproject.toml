@@ -1,0 +1,9 @@
+[project]
+name = "selenium-mcp"
+version = "0.1.0"
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn>=0.30",
+  "pydantic>=2.7",
+  "selenium>=4.22",
+]
