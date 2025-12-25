@@ -287,7 +287,8 @@ if __name__ == "__main__":
     # For ChatGPT connectors, you’ll register: https://<your-domain>/mcp
     port = int(os.getenv("PORT", "8000"))
     host = os.getenv("HOST", "0.0.0.0")
-    async def health(request):
+
+async def health(request):
     return JSONResponse({"status": "ok"})
 
 @contextlib.asynccontextmanager
