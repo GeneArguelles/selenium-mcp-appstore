@@ -19,6 +19,10 @@ import os
 import threading
 import time
 import uuid
+import contextlib
+from starlette.applications import Starlette
+from starlette.routing import Mount, Route
+from starlette.responses import JSONResponse
 from dataclasses import dataclass
 from typing import Dict, Optional
 
@@ -283,4 +287,22 @@ if __name__ == "__main__":
     # For ChatGPT connectors, you’ll register: https://<your-domain>/mcp
     port = int(os.getenv("PORT", "8000"))
     host = os.getenv("HOST", "0.0.0.0")
-    mcp.run(transport="streamable-http", host=host, port=port)
+    async def health(request):
+    return JSONResponse({"status": "ok"})
+
+@contextlib.asynccontextmanager
+async def lifespan(app: Starlette):
+    async with mcp.session_manager.run():
+        yield
+
+app = Starlette(
+    routes=[
+        Route("/health", health),
+        Mount("/", app=mcp.streamable_http_app()),
+    ],
+    lifespan=lifespan,
+)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", "8000")))
