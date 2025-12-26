@@ -62,6 +62,18 @@ mcp = FastMCP(
     ),
 )
 
+# --- MCP mount wrapper (fix /mcp exact-path) ---------------------------------
+mcp_http_app = mcp.streamable_http_app()
+
+class _FixEmptyPath:
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http" and scope.get("path", "") == "":
+            scope = dict(scope)
+            scope["path"] = "/"
+        await self.app(scope, receive, send)
 
 # -----------------------------------------------------------------------------
 # Selenium session management
@@ -314,7 +326,7 @@ app = Starlette(
         # Canonicalize trailing slash explicitly
         Route("/mcp/", lambda request: RedirectResponse(url="/mcp", status_code=307), methods=["GET", "HEAD"]),
         # MCP lives here
-        Mount("/mcp", app=mcp.streamable_http_app()),
+        Mount("/mcp", app=_FixEmptyPath(mcp_http_app)),
     ],
     lifespan=lifespan,
     middleware=middleware,
