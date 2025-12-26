@@ -44,9 +44,9 @@ PUBLIC_HOST = os.getenv("PUBLIC_HOST", "selenium-mcp-appstore.onrender.com")
 
 mcp = FastMCP(
     "SeleniumMCP",
+    streamable_http_path="/",  # <--- ADD THIS
     transport_security=TransportSecuritySettings(
         enable_dns_rebinding_protection=True,
-        # These are checked by the MCP SDK’s transport security.
         allowed_hosts=[
             "localhost:*",
             "127.0.0.1:*",
@@ -55,7 +55,6 @@ mcp = FastMCP(
         ],
         allowed_origins=[
             f"https://{PUBLIC_HOST}",
-            # Useful for ChatGPT callers:
             "https://chat.openai.com",
             "https://chatgpt.com",
         ],
@@ -332,7 +331,7 @@ app = Starlette(
     routes=[
         Route("/", root, methods=["GET"]),
         Route("/health", health, methods=["GET"]),
-        Mount("/mcp", app=mcp_asgi_rootfix),
+        Mount("/mcp", app=mcp.streamable_http_app()),
     ],
     lifespan=lifespan,
     middleware=middleware,
