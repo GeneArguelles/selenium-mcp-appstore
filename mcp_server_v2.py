@@ -35,11 +35,30 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 # MCP server instance
+PUBLIC_HOST = os.getenv("PUBLIC_HOST", "selenium-mcp-appstore.onrender.com")
+
 mcp = FastMCP(
-    "selenium-mcp",
-    json_response=True,  # helps ChatGPT consume structured tool outputs reliably
+    "SeleniumMCP",
+    transport_security=TransportSecuritySettings(
+        enable_dns_rebinding_protection=True,
+        allowed_hosts=[
+            "localhost:*",
+            "127.0.0.1:*",
+            f"{PUBLIC_HOST}:*",
+            PUBLIC_HOST,  # safe extra
+        ],
+        allowed_origins=[
+            f"https://{PUBLIC_HOST}",
+            f"https://{PUBLIC_HOST}:*",
+            # optional (useful when ChatGPT is the caller):
+            "https://chat.openai.com",
+            "https://chatgpt.com",
+        ],
+    ),
 )
 
 
@@ -299,7 +318,7 @@ async def lifespan(app: Starlette):
 app = Starlette(
     routes=[
         Route("/health", health),
-        Mount("/mcp", app=mcp.streamable_http_app()),
+        Mount("/", app=mcp.streamable_http_app()),
     ],
     lifespan=lifespan,
 )
