@@ -23,6 +23,7 @@ import contextlib
 from starlette.applications import Starlette
 from starlette.routing import Mount, Route
 from starlette.responses import JSONResponse
+from starlette.responses import RedirectResponse
 from dataclasses import dataclass
 from typing import Dict, Optional
 
@@ -318,7 +319,8 @@ async def lifespan(app: Starlette):
 app = Starlette(
     routes=[
         Route("/health", health),
-        Mount("/mcp", app=mcp.streamable_http_app()),
+        Route("/mcp/", lambda request: RedirectResponse(url="/mcp", status_code=307)),
+        Mount("/", app=mcp.streamable_http_app()),
     ],
     lifespan=lifespan,
 )
