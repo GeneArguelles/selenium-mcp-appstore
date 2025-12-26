@@ -1,9 +1,6 @@
 """Selenium MCP Server (Streamable HTTP) for ChatGPT Apps / Connectors.
 
-This server uses the official MCP Python SDK (FastMCP) and exposes a small
-browser-automation toolset over the MCP Streamable HTTP transport.
-
-Endpoint (default): http://<host>:<port>/mcp
+Endpoint (default): https://<host>/mcp
 
 Design goals:
   - MCP-native (no custom FastAPI routes required)
@@ -14,20 +11,22 @@ Design goals:
 
 from __future__ import annotations
 
-import base64
+import contextlib
 import os
 import threading
 import time
 import uuid
-import contextlib
-from starlette.applications import Starlette
-from starlette.routing import Mount, Route
-from starlette.responses import JSONResponse
-from starlette.responses import RedirectResponse
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Optional
+
+from starlette.applications import Starlette
+from starlette.middleware import Middleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.responses import JSONResponse, PlainTextResponse, RedirectResponse
+from starlette.routing import Mount, Route
 
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -36,32 +35,37 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from mcp.server.fastmcp import FastMCP
-from mcp.server.transport_security import TransportSecuritySettings
 
+# -----------------------------------------------------------------------------
 # MCP server instance
+# -----------------------------------------------------------------------------
+
 PUBLIC_HOST = os.getenv("PUBLIC_HOST", "selenium-mcp-appstore.onrender.com")
 
 mcp = FastMCP(
     "SeleniumMCP",
     transport_security=TransportSecuritySettings(
         enable_dns_rebinding_protection=True,
+        # These are checked by the MCP SDK’s transport security.
         allowed_hosts=[
             "localhost:*",
             "127.0.0.1:*",
+            PUBLIC_HOST,
             f"{PUBLIC_HOST}:*",
-            PUBLIC_HOST,  # safe extra
         ],
         allowed_origins=[
             f"https://{PUBLIC_HOST}",
-            f"https://{PUBLIC_HOST}:*",
-            # optional (useful when ChatGPT is the caller):
+            # Useful for ChatGPT callers:
             "https://chat.openai.com",
             "https://chatgpt.com",
         ],
     ),
 )
 
+
+# -----------------------------------------------------------------------------
+# Selenium session management
+# -----------------------------------------------------------------------------
 
 @dataclass
 class _Session:
@@ -73,18 +77,17 @@ class _Session:
 class _SessionManager:
     """In-process session registry.
 
-    For hosted deployments, *do not* run multiple replicas without sticky
-    sessions, because browser sessions are in-memory.
+    For hosted deployments, do not run multiple replicas without sticky sessions,
+    because browser sessions are in-memory.
     """
 
     def __init__(self) -> None:
         self._lock = threading.RLock()
-        self._sessions: Dict[str, _Session] = {}
+        self._sessions: dict[str, _Session] = {}
 
     def _new_driver(self) -> webdriver.Chrome:
         opts = ChromeOptions()
 
-        # Use env overrides when needed (e.g., custom Chrome path in Docker).
         chrome_binary = os.getenv("CHROME_BINARY")
         if chrome_binary:
             opts.binary_location = chrome_binary
@@ -160,27 +163,22 @@ def _wait_css(driver: webdriver.Chrome, selector: str, timeout_s: int) -> None:
     )
 
 
+# -----------------------------------------------------------------------------
+# MCP tools
+# -----------------------------------------------------------------------------
+
 @mcp.tool(
     name="create_session",
-    annotations={
-        "readOnlyHint": False,
-        "destructiveHint": False,
-        "openWorldHint": False,
-    },
+    annotations={"readOnlyHint": False, "destructiveHint": False, "openWorldHint": False},
 )
 def create_session() -> dict:
     """Create a new headless browser session and return its session_id."""
-    session_id = SESSIONS.create()
-    return {"session_id": session_id}
+    return {"session_id": SESSIONS.create()}
 
 
 @mcp.tool(
     name="close_session",
-    annotations={
-        "readOnlyHint": False,
-        "destructiveHint": True,
-        "openWorldHint": False,
-    },
+    annotations={"readOnlyHint": False, "destructiveHint": True, "openWorldHint": False},
 )
 def close_session(session_id: str) -> dict:
     """Close a previously created browser session (frees resources)."""
@@ -189,21 +187,15 @@ def close_session(session_id: str) -> dict:
 
 @mcp.tool(
     name="open_page",
-    annotations={
-        "readOnlyHint": False,
-        "destructiveHint": False,
-        "openWorldHint": True,
-    },
+    annotations={"readOnlyHint": False, "destructiveHint": False, "openWorldHint": True},
 )
-def open_page(session_id: str, url: str, wait_css: Optional[str] = None, timeout_s: int = 20) -> dict:
-    """Navigate the session to a URL.
-
-    Args:
-      session_id: Browser session id from create_session
-      url: URL to navigate to
-      wait_css: Optional CSS selector to wait for before returning
-      timeout_s: Wait timeout (seconds)
-    """
+def open_page(
+    session_id: str,
+    url: str,
+    wait_css: Optional[str] = None,
+    timeout_s: int = 20,
+) -> dict:
+    """Navigate the session to a URL."""
     s = SESSIONS.get(session_id)
     s.driver.get(url)
     if wait_css:
@@ -213,28 +205,19 @@ def open_page(session_id: str, url: str, wait_css: Optional[str] = None, timeout
 
 @mcp.tool(
     name="click",
-    annotations={
-        "readOnlyHint": False,
-        "destructiveHint": False,
-        "openWorldHint": True,
-    },
+    annotations={"readOnlyHint": False, "destructiveHint": False, "openWorldHint": True},
 )
 def click(session_id: str, css_selector: str, timeout_s: int = 20) -> dict:
     """Click the first element matching a CSS selector."""
     s = SESSIONS.get(session_id)
     _wait_css(s.driver, css_selector, timeout_s)
-    el = s.driver.find_element(By.CSS_SELECTOR, css_selector)
-    el.click()
+    s.driver.find_element(By.CSS_SELECTOR, css_selector).click()
     return {"ok": True, "clicked": css_selector}
 
 
 @mcp.tool(
     name="type_text",
-    annotations={
-        "readOnlyHint": False,
-        "destructiveHint": False,
-        "openWorldHint": True,
-    },
+    annotations={"readOnlyHint": False, "destructiveHint": False, "openWorldHint": True},
 )
 def type_text(
     session_id: str,
@@ -255,11 +238,7 @@ def type_text(
 
 @mcp.tool(
     name="get_text",
-    annotations={
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "openWorldHint": True,
-    },
+    annotations={"readOnlyHint": True, "destructiveHint": False, "openWorldHint": True},
 )
 def get_text(session_id: str, css_selector: str, timeout_s: int = 20) -> dict:
     """Return the `.text` content of the first element matching the selector."""
@@ -271,60 +250,84 @@ def get_text(session_id: str, css_selector: str, timeout_s: int = 20) -> dict:
 
 @mcp.tool(
     name="screenshot",
-    annotations={
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "openWorldHint": True,
-    },
+    annotations={"readOnlyHint": True, "destructiveHint": False, "openWorldHint": True},
 )
 def screenshot(session_id: str) -> dict:
     """Take a PNG screenshot and return it as base64."""
     s = SESSIONS.get(session_id)
-    b64 = s.driver.get_screenshot_as_base64()
-    # Keep response small-ish; caller can store it as a file if needed.
     return {
         "ok": True,
         "mime_type": "image/png",
-        "image_base64": b64,
+        "image_base64": s.driver.get_screenshot_as_base64(),
     }
 
 
 @mcp.tool(
     name="reap_idle_sessions",
-    annotations={
-        "readOnlyHint": False,
-        "destructiveHint": True,
-        "openWorldHint": False,
-    },
+    annotations={"readOnlyHint": False, "destructiveHint": True, "openWorldHint": False},
 )
 def reap_idle_sessions(max_idle_seconds: int = 600) -> dict:
     """Close sessions idle for longer than max_idle_seconds."""
     return {"closed": SESSIONS.reap_idle(max_idle_seconds)}
 
 
-if __name__ == "__main__":
-    # By convention, MCP over Streamable HTTP is served at /mcp.
-    # For ChatGPT connectors, you’ll register: https://<your-domain>/mcp
-    port = int(os.getenv("PORT", "8000"))
-    host = os.getenv("HOST", "0.0.0.0")
+# -----------------------------------------------------------------------------
+# Starlette app shell (health + canonical redirect + MCP mount)
+# -----------------------------------------------------------------------------
+
+def _allowed_hosts() -> list[str]:
+    """
+    Comma-separated list in env: ALLOWED_HOSTS
+    Example:
+      ALLOWED_HOSTS=selenium-mcp-appstore.onrender.com,*.onrender.com
+    Quick-debug (not ideal for prod):
+      ALLOWED_HOSTS=*
+    """
+    env = os.getenv("ALLOWED_HOSTS", "").strip()
+    if env:
+        return [h.strip() for h in env.split(",") if h.strip()]
+
+    # Keep this consistent with PUBLIC_HOST and your deployment domain.
+    return [PUBLIC_HOST, "*.onrender.com", "localhost", "127.0.0.1"]
+
+
+async def root(request):
+    return PlainTextResponse("Selenium MCP is running. Health: /health  MCP: /mcp\n")
+
 
 async def health(request):
     return JSONResponse({"status": "ok"})
+
 
 @contextlib.asynccontextmanager
 async def lifespan(app: Starlette):
     async with mcp.session_manager.run():
         yield
 
+
+middleware = [Middleware(TrustedHostMiddleware, allowed_hosts=_allowed_hosts())]
+
 app = Starlette(
     routes=[
-        Route("/health", health),
-        Route("/mcp/", lambda request: RedirectResponse(url="/mcp", status_code=307)),
-        Mount("/", app=mcp.streamable_http_app()),
+        Route("/", root, methods=["GET", "HEAD"]),
+        Route("/health", health, methods=["GET", "HEAD"]),
+        # Canonicalize trailing slash explicitly
+        Route("/mcp/", lambda request: RedirectResponse(url="/mcp", status_code=307), methods=["GET", "HEAD"]),
+        # MCP lives here
+        Mount("/mcp", app=mcp.streamable_http_app()),
     ],
     lifespan=lifespan,
+    middleware=middleware,
 )
+
+# Prevent Starlette from adding its own auto-slash redirects
+app.router.redirect_slashes = False
+
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", "8000")))
+    uvicorn.run(
+        app,
+        host=os.getenv("HOST", "0.0.0.0"),
+        port=int(os.getenv("PORT", "8000")),
+    )
