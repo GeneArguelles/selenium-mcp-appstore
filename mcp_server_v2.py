@@ -304,8 +304,7 @@ def _allowed_hosts() -> list[str]:
 
 
 async def root(request):
-    return PlainTextResponse("Selenium MCP is running. Health: /health  MCP: /mcp\n")
-
+    return PlainTextResponse("Selenium MCP v2 ✅  Health: /health  MCP: /mcp\n")
 
 async def health(request):
     return JSONResponse({"status": "ok"})
