@@ -303,43 +303,43 @@ def _allowed_hosts() -> list[str]:
 
 
 async def root(request):
-    return PlainTextResponse("Selenium MCP v2 ✅  Health: /health  MCP: /mcp\n")
+    return PlainTextResponse("Selenium MCP is running. Health: /health  MCP: /mcp\n")
 
 async def health(request):
     return JSONResponse({"status": "ok"})
-
 
 @contextlib.asynccontextmanager
 async def lifespan(app: Starlette):
     async with mcp.session_manager.run():
         yield
 
-
-middleware = [Middleware(TrustedHostMiddleware, allowed_hosts=_allowed_hosts())]
-
-# --- MCP mount wrapper --------------------------------------------------------
-_mcp_asgi = mcp.streamable_http_app()
-
-async def mcp_asgi_rootfix(scope, receive, send):
-    # When mounted at /mcp, requests to exactly "/mcp" may reach the child app as path ""
-    if scope["type"] == "http" and scope.get("path", "") == "":
-        scope = dict(scope)
-        scope["path"] = "/"
-    await _mcp_asgi(scope, receive, send)
+middleware = [
+    Middleware(TrustedHostMiddleware, allowed_hosts=_allowed_hosts()),
+]
 
 app = Starlette(
     routes=[
         Route("/", root, methods=["GET"]),
         Route("/health", health, methods=["GET"]),
+
+        # canonicalize trailing slash
+        Route("/mcp/", lambda request: RedirectResponse(url="/mcp", status_code=307)),
+
+        # IMPORTANT: MCP is mounted ONLY here
         Mount("/mcp", app=mcp.streamable_http_app()),
     ],
     lifespan=lifespan,
     middleware=middleware,
 )
 
-# Prevent Starlette from adding its own auto-slash redirects
-app.router.redirect_slashes = False
+# --- TEMP DEBUG (remove after) ---
+async def routes_debug(request):
+    paths = []
+    for r in app.router.routes:
+        paths.append(getattr(r, "path", str(r)))
+    return JSONResponse({"routes": paths})
 
+app.router.redirect_slashes = False
 
 if __name__ == "__main__":
     import uvicorn
