@@ -319,14 +319,21 @@ async def lifespan(app: Starlette):
 
 middleware = [Middleware(TrustedHostMiddleware, allowed_hosts=_allowed_hosts())]
 
+# --- MCP mount wrapper --------------------------------------------------------
+_mcp_asgi = mcp.streamable_http_app()
+
+async def mcp_asgi_rootfix(scope, receive, send):
+    # When mounted at /mcp, requests to exactly "/mcp" may reach the child app as path ""
+    if scope["type"] == "http" and scope.get("path", "") == "":
+        scope = dict(scope)
+        scope["path"] = "/"
+    await _mcp_asgi(scope, receive, send)
+
 app = Starlette(
     routes=[
-        Route("/", root, methods=["GET", "HEAD"]),
-        Route("/health", health, methods=["GET", "HEAD"]),
-        # Canonicalize trailing slash explicitly
-        Route("/mcp/", lambda request: RedirectResponse(url="/mcp", status_code=307), methods=["GET", "HEAD"]),
-        # MCP lives here
-        Mount("/mcp", app=_FixEmptyPath(mcp_http_app)),
+        Route("/", root, methods=["GET"]),
+        Route("/health", health, methods=["GET"]),
+        Mount("/mcp", app=mcp_asgi_rootfix),
     ],
     lifespan=lifespan,
     middleware=middleware,
