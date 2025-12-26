@@ -322,15 +322,17 @@ app = Starlette(
         Route("/", root, methods=["GET"]),
         Route("/health", health, methods=["GET"]),
 
-        # canonicalize trailing slash
+        # redirect /mcp -> /mcp/ (KEEP THIS)
         Route("/mcp", lambda request: RedirectResponse(url="/mcp/", status_code=307)),
-        
-        # IMPORTANT: MCP is mounted ONLY here
+
+        # MCP mounted at /mcp (handles /mcp/ and deeper)
         Mount("/mcp", app=mcp.streamable_http_app()),
     ],
     lifespan=lifespan,
     middleware=middleware,
 )
+
+app.router.redirect_slashes = False
 
 # --- TEMP DEBUG (remove after) ---
 async def routes_debug(request):
