@@ -56,3 +56,24 @@ This repo includes a `Procfile` that runs:
 
 > Note: for production, install Chrome + chromedriver in your container/runtime.
 
+## How to test (smoke)
+
+This repo includes a curl-based MCP smoke test that:
+- initializes an MCP session
+- lists tools
+- creates a Selenium browser session
+- opens https://example.com, verifies the `h1`
+- takes a screenshot (`smoke.png`)
+- closes the browser session
+
+### Prereqs
+- `bash`
+- `curl`
+- `jq`
+- `base64`
+
+### Run
+```bash
+chmod +x smoke_mcp.sh
+./smoke_mcp.sh
+
