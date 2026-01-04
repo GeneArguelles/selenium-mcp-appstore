@@ -22,5 +22,5 @@ COPY . /app
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Render provides $PORT at runtime
-CMD ["bash", "-lc", "uvicorn mcp_server:app --host 0.0.0.0 --port $PORT"]
+# Render sets $PORT automatically
+CMD ["sh", "-lc", "uvicorn jmeter_server:app --host 0.0.0.0 --port ${PORT:-10000}"]
