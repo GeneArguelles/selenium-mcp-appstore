@@ -28,3 +28,15 @@ chromedriver-linux64/
 
 # OS
 .DS_Store
+
+# Runtime artifacts
+artifacts/
+
+# Local artifacts
+reports/
+testplans/
+*.bak.*
+session_log.txt
+startup_log.txt
+*.json
+*.txt

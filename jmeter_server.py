@@ -316,6 +316,3 @@ def jmeter_report_raw(
         "Pragma": "no-cache",
     }
     return Response(content=data, media_type=content_type, headers=headers)
-
-# Render sets $PORT automatically
-CMD ["sh", "-lc", "uvicorn jmeter_server:app --host 0.0.0.0 --port ${PORT:-10000}"]
