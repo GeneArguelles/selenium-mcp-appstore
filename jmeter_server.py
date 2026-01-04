@@ -213,8 +213,11 @@ def jmeter_plans():
     return jmeter_tools.list_plans()
 
 @app.get("/jmeter/version")
-def jmeter_version():
-    return jmeter_tools.jmeter_version()
+def jmeter_version(raw: bool = Query(False)):
+    data = jmeter_tools.jmeter_version()
+    if not raw:
+        data.pop("raw", None)
+    return data
 
 @app.post("/jmeter/run")
 def jmeter_run(payload: dict = Body(...)):

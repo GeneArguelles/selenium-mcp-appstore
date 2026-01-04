@@ -44,13 +44,25 @@ def list_plans() -> Dict[str, Any]:
     return {"plans": sorted(p.name for p in TESTPLANS_DIR.glob("*.jmx"))}
 
 
-def jmeter_version() -> Dict[str, Any]:
-    exe = shutil.which(JMETER_BIN)
-    if not exe:
-        return {"ok": False, "error": f"JMeter executable not found: {JMETER_BIN}"}
-    cp = subprocess.run([exe, "-v"], capture_output=True, text=True, timeout=15)
-    out = (cp.stdout or "") + "\n" + (cp.stderr or "")
-    return {"ok": cp.returncode == 0, "output": out.strip()[:4000]}
+def jmeter_version():
+    p = subprocess.run(
+        ["jmeter", "-v"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        check=False,
+    )
+
+    out = (p.stdout or "").strip()
+
+    # Extract "5.6.3" from: Apache JMeter (version 5.6.3)
+    m = re.search(r"Apache JMeter\s*\(version\s*([0-9.]+)", out)
+    version = m.group(1) if m else None
+
+    return {
+        "ok": True,
+        "version": version,
+    }
 
 
 def _safe_name(name: str) -> str:
