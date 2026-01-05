@@ -2,7 +2,7 @@
 set -euo pipefail
 command -v jq >/dev/null || { echo "jq is required"; exit 1; }
 
-BASE="https://selenium-mcp-appstore.onrender.com/mcp/"
+BASE="${BASE:-https://selenium-mcp-appstore.onrender.com/mcp/}"
 
 # 1) Initialize parameters
 SID=$(
