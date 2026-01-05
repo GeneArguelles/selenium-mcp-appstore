@@ -219,6 +219,10 @@ def jmeter_version(raw: bool = Query(False)):
         data.pop("raw", None)
     return data
 
+@app.get("/debug/jmeter_version")
+def debug_jmeter_version():
+    return jmeter_tools.jmeter_version()
+
 @app.post("/jmeter/run")
 def jmeter_run(payload: dict = Body(...)):
     plan = payload.get("plan")

@@ -44,7 +44,7 @@ def list_plans() -> Dict[str, Any]:
     return {"plans": sorted(p.name for p in TESTPLANS_DIR.glob("*.jmx"))}
 
 
-def jmeter_version():
+def jmeter_version(raw: bool = False) -> Dict[str, Any]:
     p = subprocess.run(
         ["jmeter", "-v"],
         stdout=subprocess.PIPE,
@@ -52,17 +52,22 @@ def jmeter_version():
         text=True,
         check=False,
     )
-
     out = (p.stdout or "").strip()
 
-    # Extract "5.6.3" from: Apache JMeter (version 5.6.3)
-    m = re.search(r"Apache JMeter\s*\(version\s*([0-9.]+)", out)
+    # More flexible: matches
+    # - "Apache JMeter (version 5.6.3)"
+    # - "Apache JMeter 5.6.3"
+    # - "version 5.6.3"
+    m = re.search(r"Apache\s+JMeter.*?(?:version\s*)?\(?\s*([0-9]+(?:\.[0-9]+)+)", out, re.IGNORECASE)
+    if not m:
+        m = re.search(r"\bversion\s*([0-9]+(?:\.[0-9]+)+)\b", out, re.IGNORECASE)
+
     version = m.group(1) if m else None
 
-    return {
-        "ok": True,
-        "version": version,
-    }
+    resp: Dict[str, Any] = {"ok": (p.returncode == 0), "version": version, "rc": p.returncode}
+    if raw:
+        resp["raw"] = out
+    return resp
 
 
 def _safe_name(name: str) -> str:
@@ -258,3 +263,5 @@ def get_jtl_header(run_id: str) -> Dict[str, Any]:
             "error": str(e),
             "jtl_path": str(jtl_path),
         }
+    
+    
