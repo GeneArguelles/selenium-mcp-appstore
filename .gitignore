@@ -34,7 +34,10 @@ artifacts/
 
 # Local artifacts
 reports/
-testplans/
+# Ignore everything in testplans...
+testplans/*
+# ...but keep JMeter test plans
+!testplans/*.jmx
 *.bak.*
 session_log.txt
 startup_log.txt
