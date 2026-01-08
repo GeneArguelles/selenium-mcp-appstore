@@ -30,6 +30,7 @@ import platform
 import sys
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from selenium import webdriver
@@ -357,6 +358,28 @@ TOOL_EXECUTION_MAP = {
     "selenium_open_page": "handle_open_page"
 }
 
+# ==========================================================
+# GET files
+# ==========================================================
+@app.get("/files")
+def get_file(path: str):
+    """
+    Secure file fetch for artifacts written to /tmp (e.g., screenshots).
+    Usage: /files?path=/tmp/screenshot-xxxx.png
+    """
+    # Only allow /tmp
+    if not path.startswith("/tmp/"):
+        raise HTTPException(status_code=400, detail="Only /tmp files are allowed")
+
+    # Only allow PNGs
+    if not path.endswith(".png"):
+        raise HTTPException(status_code=400, detail="Only .png files are allowed")
+
+    # Must exist
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    return FileResponse(path, media_type="image/png", filename=os.path.basename(path))
 
 # ==========================================================
 # OpenAI MCP Manifest (Agent Builder discovery compatible)
