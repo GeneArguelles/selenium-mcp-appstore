@@ -27,6 +27,8 @@ def _make_driver():
     opts.add_argument("--disable-gpu")
     opts.add_argument("--window-size=1280,720")
 
+    on_render = os.getenv("RENDER", "").lower() in ("1", "true", "yes")
+
     # Prefer system chromium on Render/Debian
     chrome_bin = os.getenv("CHROME_BINARY") or "/usr/bin/chromium"
     if os.path.exists(chrome_bin):
@@ -37,7 +39,14 @@ def _make_driver():
     if os.path.exists(driver_path):
         return webdriver.Chrome(service=Service(driver_path), options=opts)
 
-    # Fallback (local dev)
+    # 🚫 On Render, never fall back to Selenium Manager (it downloads into /root/.cache)
+    if on_render:
+        raise RuntimeError(
+            f"chromedriver not found at {driver_path}. "
+            "Ensure Dockerfile installs chromium-driver and verifies `which chromedriver`."
+        )
+
+    # Fallback (local dev only)
     return webdriver.Chrome(options=opts)
 
 def selenium_open_page(url: str):

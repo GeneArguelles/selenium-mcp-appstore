@@ -1,6 +1,8 @@
 FROM python:3.12-slim
 ENV CHROME_BINARY=/usr/bin/chromium
 ENV CHROMEDRIVER_BINARY=/usr/bin/chromedriver
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates unzip \
@@ -16,8 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxshmfence1 libdrm2 libxkbcommon0 \
  && rm -rf /var/lib/apt/lists/*
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+ RUN which chromium && chromium --version \
+ && which chromedriver && chromedriver --version
 
 # System deps: Java + curl for installing JMeter
 RUN apt-get update && apt-get install -y --no-install-recommends \
