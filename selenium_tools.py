@@ -3,6 +3,7 @@ import os
 import uuid
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -20,16 +21,23 @@ def _wait_clickable(driver, selector, timeout=10):
 
 def _make_driver():
     opts = Options()
-    opts.add_argument("--headless")
+    opts.add_argument("--headless=new")
     opts.add_argument("--no-sandbox")
     opts.add_argument("--disable-dev-shm-usage")
     opts.add_argument("--disable-gpu")
     opts.add_argument("--window-size=1280,720")
 
-    chrome_bin = os.getenv("CHROME_BINARY")
-    if chrome_bin:
+    # Prefer system chromium on Render/Debian
+    chrome_bin = os.getenv("CHROME_BINARY") or "/usr/bin/chromium"
+    if os.path.exists(chrome_bin):
         opts.binary_location = chrome_bin
 
+    # Use system chromedriver (preinstalled by apt chromium-driver)
+    driver_path = os.getenv("CHROMEDRIVER_PATH") or "/usr/bin/chromedriver"
+    if os.path.exists(driver_path):
+        return webdriver.Chrome(service=Service(driver_path), options=opts)
+
+    # Fallback (local dev)
     return webdriver.Chrome(options=opts)
 
 def selenium_open_page(url: str):
