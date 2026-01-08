@@ -43,3 +43,4 @@ session_log.txt
 startup_log.txt
 *.json
 *.txt
+mcp_version.txt
