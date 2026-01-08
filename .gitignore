@@ -44,3 +44,6 @@ startup_log.txt
 *.json
 *.txt
 mcp_version.txt
+
+# local artifacts
+*.png
