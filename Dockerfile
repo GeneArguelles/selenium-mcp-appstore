@@ -24,7 +24,7 @@ COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Build-time sanity check (optional but recommended)
-RUN python -c "import jmeter_server; print('jmeter_server import OK')"
+RUN python -c "import mcp_server; print('mcp_server import OK')"
 
 # Render sets $PORT automatically
-CMD ["sh", "-lc", "uvicorn jmeter_server:app --host 0.0.0.0 --port $PORT"]
+CMD ["sh", "-lc", "uvicorn mcp_server:app --host 0.0.0.0 --port ${PORT:-10000}"]
