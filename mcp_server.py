@@ -5,6 +5,7 @@
 # Author: Gene Arguelles, LLC
 # ==========================================================
 import os, datetime, string, platform, logging
+import subprocess
 
 # ----------------------------------------------------------
 # ✅ Canonical MCP_VERSION bootstrap
@@ -1050,6 +1051,55 @@ def envcheck():
         "env_status": "ok",
         "details": env_preview,
         "openai_check": openai_status,
+    }
+
+def _run(cmd: str):
+    try:
+        out = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, text=True)
+        return {"cmd": cmd, "ok": True, "out": out.strip()}
+    except subprocess.CalledProcessError as e:
+        return {"cmd": cmd, "ok": False, "code": e.returncode, "out": (e.output or "").strip()}
+    except Exception as e:
+        return {"cmd": cmd, "ok": False, "error": str(e)}
+
+
+@app.get("/diag/chrome")
+def diag_chrome():
+    debug_mode = os.getenv("DEBUG_MODE", "false").lower() in ("1", "true", "yes")
+    on_render = os.getenv("RENDER", "false").lower() in ("1", "true", "yes")
+
+    # Allow diagnostics on Render OR when DEBUG_MODE=true locally
+    if not (debug_mode or on_render):
+        raise HTTPException(status_code=403, detail="Disabled. Set DEBUG_MODE=true to enable.")
+
+    return {
+        "env": {
+            "RENDER": os.getenv("RENDER"),
+            "CHROME_BINARY": os.getenv("CHROME_BINARY"),
+            "SELENIUM_MANAGER": os.getenv("SELENIUM_MANAGER"),
+            "PATH": os.getenv("PATH"),
+        },
+        "which": {
+            "chromium": _run("which chromium || which chromium-browser || true"),
+            "google_chrome": _run("which google-chrome || which google-chrome-stable || true"),
+            "chromedriver": _run("which chromedriver || true"),
+        },
+        "versions": {
+            "chromium": _run("chromium --version || chromium-browser --version || true"),
+            "chrome": _run("google-chrome --version || google-chrome-stable --version || true"),
+            "chromedriver": _run("chromedriver --version || true"),
+        },
+        "ldd": {
+            "chromedriver": _run("ldd $(which chromedriver) 2>/dev/null | grep 'not found' || echo OK"),
+            "chrome_bin": _run(
+                "BIN=$(which chromium || which chromium-browser || which google-chrome || which google-chrome-stable || true); "
+                "if [ -n \"$BIN\" ]; then ldd \"$BIN\" 2>/dev/null | grep 'not found' || echo OK; else echo 'NO_BROWSER_BIN'; fi"
+            ),
+        },
+        "cache": {
+            "selenium_cache": _run("ls -la /root/.cache/selenium || true"),
+            "selenium_drivers": _run("find /root/.cache/selenium -maxdepth 6 -type f -name chromedriver -ls || true"),
+        },
     }
 
 
