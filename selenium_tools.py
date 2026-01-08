@@ -20,7 +20,7 @@ def _wait_clickable(driver, selector, timeout=10):
 
 def _make_driver():
     opts = Options()
-    opts.add_argument("--headless=new")
+    opts.add_argument("--headless")
     opts.add_argument("--no-sandbox")
     opts.add_argument("--disable-dev-shm-usage")
     opts.add_argument("--disable-gpu")
@@ -69,15 +69,20 @@ def selenium_screenshot(url: str, filename: str = "screenshot.png"):
     try:
         driver.get(url)
 
-        # If caller passed just a name (not an absolute path), write to /tmp
-        if not os.path.isabs(filename):
-            # If they left the default, make it unique to avoid collisions
-            if filename == "screenshot.png":
-                filename = f"screenshot-{uuid.uuid4().hex}.png"
-            filename = os.path.join("/tmp", filename)
+        # Always write to /tmp; ensure .png extension
+        base = os.path.basename(filename) if filename else "screenshot.png"
+        if not base.lower().endswith(".png"):
+            base += ".png"
 
-        driver.save_screenshot(filename)
-        return {"url": url, "screenshot": filename}
+        if base == "screenshot.png":
+            base = f"screenshot-{uuid.uuid4().hex}.png"
+
+        outpath = os.path.join("/tmp", base)
+
+        driver.save_screenshot(outpath)
+        return {"ok": True, "url": url, "screenshot": outpath}
+    except Exception as e:
+        return {"ok": False, "url": url, "error": f"Screenshot failed: {e}"}
     finally:
         driver.quit()
         

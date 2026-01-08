@@ -919,49 +919,42 @@ async def mcp_invoke(request: Request):
             return JSONResponse({"status": "success", "tool": tool, "result": result})
 
         elif tool == "selenium_click":
+            url = args.get("url")
             selector = args.get("selector")
+            if not url:
+                return JSONResponse({"error": "Missing 'url' argument."}, status_code=400)
             if not selector:
                 return JSONResponse({"error": "Missing 'selector' argument."}, status_code=400)
-            try:
-                result = selenium_click(selector)
-                return JSONResponse({"status": "success", "tool": tool, "result": result})
-            except Exception as e:
-                return JSONResponse(
-                    {"status": "error", "tool": tool, "error": f"Click failed: {str(e)}"},
-                    status_code=200,
-                )
+
+            result = selenium_click(url, selector)
+            return JSONResponse({"status": "success", "tool": tool, "result": result})
+
 
         elif tool == "selenium_get_text":
+            url = args.get("url")
             selector = args.get("selector")
+            if not url:
+                return JSONResponse({"error": "Missing 'url' argument."}, status_code=400)
             if not selector:
                 return JSONResponse({"error": "Missing 'selector' argument."}, status_code=400)
-            try:
-                result = selenium_get_text(selector)
-                return JSONResponse({"status": "success", "tool": tool, "result": result})
-            except Exception as e:
-                return JSONResponse(
-                    {
-                        "status": "error",
-                        "tool": tool,
-                        "error": f"Selector '{selector}' not found: {str(e)}",
-                    },
-                    status_code=200,
-                )
+
+            result = selenium_get_text(url, selector)
+            return JSONResponse({"status": "success", "tool": tool, "result": result})
 
         elif tool == "selenium_screenshot":
+            url = args.get("url")
+            if not url:
+                return JSONResponse({"error": "Missing 'url' argument."}, status_code=400)
+
             filename = args.get("filename", "screenshot.png")
             try:
-                result = selenium_screenshot(filename)
+                result = selenium_screenshot(url, filename)
                 return JSONResponse({"status": "success", "tool": tool, "result": result})
             except Exception as e:
                 return JSONResponse(
-                    {
-                        "status": "error",
-                        "tool": tool,
-                        "error": f"Screenshot failed: {str(e)}",
-                    },
-                    status_code=200,
-                )
+                {"status": "error", "tool": tool, "error": f"Screenshot failed: {str(e)}"},
+                status_code=200,
+            )
 
         else:
             return JSONResponse(
