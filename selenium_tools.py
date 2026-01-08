@@ -8,7 +8,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from urllib.parse import quote
 
+# ==========================================================
+# Helper functions
+# ==========================================================
 def _wait_css(driver, selector, timeout=10):
     return WebDriverWait(driver, timeout).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, selector))
@@ -18,6 +22,13 @@ def _wait_clickable(driver, selector, timeout=10):
     return WebDriverWait(driver, timeout).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, selector))
     )
+
+def _public_base_url() -> str:
+    base = os.getenv("BASE_URL") or os.getenv("RENDER_EXTERNAL_URL") or ""
+    base = base.strip()
+    if base and not base.startswith("http"):
+        base = "https://" + base
+    return base.rstrip("/")
 
 def _make_driver():
     opts = Options()
@@ -97,7 +108,17 @@ def selenium_screenshot(url: str, filename: str = "screenshot.png"):
         outpath = os.path.join("/tmp", base)
 
         driver.save_screenshot(outpath)
-        return {"ok": True, "url": url, "screenshot": outpath}
+
+        base_url = _public_base_url()
+        download_url = f"{base_url}/files?path={quote(outpath, safe='')}" if base_url else None
+
+        return {
+            "ok": True,
+            "url": url,
+            "screenshot": outpath,
+            "download_url": download_url,
+        }
+
     except Exception as e:
         return {"ok": False, "url": url, "error": f"Screenshot failed: {e}"}
     finally:
