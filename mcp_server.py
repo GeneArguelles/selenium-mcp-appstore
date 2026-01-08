@@ -11,18 +11,6 @@ import subprocess
 # ✅ Canonical MCP_VERSION bootstrap
 # Ensures deterministic version tag across all workers
 # ----------------------------------------------------------
-if "MCP_VERSION" not in globals() or not globals().get("MCP_VERSION"):
-    MCP_VERSION = os.getenv(
-        "MCP_VERSION",
-        f"v{datetime.date.today().strftime('%Y%m%d')}a"
-    )
-    print(f"[BOOT] MCP_VERSION pre-initialized as {MCP_VERSION}")
-
-if not isinstance(MCP_VERSION, str) or not MCP_VERSION.startswith("v"):
-    MCP_VERSION = f"v{datetime.date.today().strftime('%Y%m%d')}a"
-    print(f"[BOOT] MCP_VERSION repaired to {MCP_VERSION}")
-
-print(f"[INFO] Launching MCP Server (version={MCP_VERSION})")
 
 import json     # ✅ Add this once here
 import openai
@@ -49,48 +37,55 @@ load_dotenv('/etc/secrets/.env')
 # ----------------------------------------------------------
 
 def _generate_mcp_version() -> str:
-    """Generate an MCP version string like v20251028a, v20251028b, etc."""
-    base_date = datetime.date.today().strftime('%Y%m%d')
-    env_version = os.getenv("MCP_VERSION")  # explicit override
-    env_suffix = os.getenv("MCP_SUFFIX")    # manual suffix (e.g., b, c, d)
-    version_file = "mcp_version.txt"
-    base_prefix = f"v{base_date}"
+    """
+    Generate an MCP version string.
 
-    # Priority 1: explicit environment variable
+    Priority:
+      1) MCP_VERSION env var (explicit override)
+      2) Render git commit (stable per deploy): vYYYYMMDD-<sha7>
+      3) Fallback date+letter persisted in /tmp (vYYYYMMDDa, b, c...)
+    """
+    base_date = datetime.date.today().strftime("%Y%m%d")
+    env_version = (os.getenv("MCP_VERSION") or "").strip()
+    render_sha = (os.getenv("RENDER_GIT_COMMIT") or os.getenv("GIT_COMMIT") or "").strip()
+
+    # 1) explicit override
     if env_version:
-        print(f"[INFO] MCP version explicitly set via environment → {env_version}")
+        if not env_version.startswith("v"):
+            env_version = "v" + env_version
+        print(f"[INFO] MCP_VERSION explicitly set via env → {env_version}", flush=True)
         return env_version
 
-    # Determine next suffix
+    # 2) Render deploy: use commit SHA if present
+    if render_sha:
+        v = f"v{base_date}-{render_sha[:7]}"
+        print(f"[INFO] MCP_VERSION from Render git sha → {v}", flush=True)
+        return v
+
+    # 3) fallback: date+letter persisted in /tmp
+    version_file = "/tmp/mcp_version.txt"
+    base_prefix = f"v{base_date}"
+
+    new_version = f"{base_prefix}a"
     if os.path.exists(version_file):
-        with open(version_file, "r") as f:
-            last_version = f.read().strip()
-        if last_version.startswith(base_prefix):
-            last_suffix = last_version[-1]
-            if last_suffix in string.ascii_lowercase:
-                next_suffix = string.ascii_lowercase[
-                    (string.ascii_lowercase.index(last_suffix) + 1) % len(string.ascii_lowercase)
-                ]
-            else:
-                next_suffix = "a"
-            new_version = f"{base_prefix}{next_suffix}"
-        else:
-            new_version = f"{base_prefix}a"
-    else:
-        new_version = f"{base_prefix}a"
+        try:
+            last_version = open(version_file, "r").read().strip()
+            if last_version.startswith(base_prefix) and len(last_version) >= len(base_prefix) + 1:
+                last_suffix = last_version[len(base_prefix):]
+                # only handle single-letter suffix cleanly
+                if len(last_suffix) == 1 and last_suffix in string.ascii_lowercase:
+                    idx = string.ascii_lowercase.index(last_suffix)
+                    new_version = f"{base_prefix}{string.ascii_lowercase[(idx + 1) % 26]}"
+        except Exception:
+            pass
 
-    # Manual override via MCP_SUFFIX (e.g., MCP_SUFFIX=c)
-    if env_suffix:
-        new_version = f"{base_prefix}{env_suffix}"
-        print(f"[INFO] MCP_SUFFIX override detected → {env_suffix}")
+    try:
+        with open(version_file, "w") as f:
+            f.write(new_version)
+    except Exception as e:
+        print(f"[WARN] Could not persist version to {version_file}: {e}", flush=True)
 
-    # Save to file for next deploy
-    with open(version_file, "w") as f:
-        f.write(new_version)
-
-    # Log in Render output for visibility
-    print(f"[INFO] MCP version updated to {new_version}")
-
+    print(f"[INFO] MCP version updated to {new_version}", flush=True)
     return new_version
 
 
