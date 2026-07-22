@@ -124,6 +124,17 @@ class JMeterExecutorTests(unittest.TestCase):
             executor.get_jtl_header("abcdef12")["columns"],
             ["timeStamp", "elapsed", "label", "responseCode", "success", "Latency", "Connect"],
         )
+        manifest = executor.get_artifact_manifest("abcdef12")
+        self.assertEqual(manifest["schema_version"], "pe.jmeter.evidence.v1")
+        self.assertEqual(manifest["status"], "completed")
+        self.assertEqual(
+            set(manifest["artifacts"]),
+            {"test_plan", "jtl", "jmeter_log", "dashboard_index", "run_metadata"},
+        )
+        for evidence in manifest["artifacts"].values():
+            self.assertTrue(evidence["exists"])
+            self.assertGreater(evidence["size_bytes"], 0)
+            self.assertRegex(evidence["sha256"], r"^[a-f0-9]{64}$")
 
         marker = self.runs / "abcdef12" / "keep.txt"
         marker.write_text("do not delete", encoding="utf-8")

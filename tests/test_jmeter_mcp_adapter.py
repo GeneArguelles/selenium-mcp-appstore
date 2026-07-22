@@ -97,6 +97,7 @@ class JMeterMcpAdapterTests(unittest.TestCase):
         status = self.adapter.status(run_id="abcdef12")
         details = self.adapter.run_details(run_id="abcdef12")
         header = self.adapter.jtl_header(run_id="abcdef12")
+        manifest = self.adapter.artifact_manifest(run_id="abcdef12")
 
         self.assertTrue(run["ok"])
         self.assertEqual(run["result"]["status"], "completed")
@@ -105,6 +106,13 @@ class JMeterMcpAdapterTests(unittest.TestCase):
         self.assertIn("<redacted>", details["result"]["stdout"])
         self.assertIn("forbidden_secret_present=False", details["result"]["stdout"])
         self.assertIn("elapsed", header["result"]["columns"])
+        self.assertEqual(
+            manifest["result"]["schema_version"], "pe.jmeter.evidence.v1"
+        )
+        self.assertRegex(
+            manifest["result"]["artifacts"]["run_metadata"]["sha256"],
+            r"^[a-f0-9]{64}$",
+        )
 
     def test_cli_policy_errors_remain_machine_readable(self) -> None:
         rejected = self.adapter.run(

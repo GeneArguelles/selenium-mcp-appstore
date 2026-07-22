@@ -62,6 +62,7 @@ python -m jmeter_executor run --plan httpbin_smoke.jmx --run-id deadbeef
 python -m jmeter_executor status --run-id deadbeef
 python -m jmeter_executor run-details --run-id deadbeef
 python -m jmeter_executor jtl-header --run-id deadbeef
+python -m jmeter_executor artifact-manifest --run-id deadbeef
 ```
 
 Runtime configuration is supplied by the trusted worker environment rather than
@@ -78,7 +79,7 @@ parameters because JMeter receives them as process arguments.
 
 ## Persona Engineering MCP adapter
 
-The canonical FastMCP server in `mcp_server_v2.py` exposes seven constrained
+The canonical FastMCP server in `mcp_server_v2.py` exposes eight constrained
 JMeter tools through `JMeterMcpAdapter`:
 
 ```text
@@ -89,6 +90,7 @@ jmeter_run
 jmeter_status
 jmeter_run_details
 jmeter_jtl_header
+jmeter_artifact_manifest
 ```
 
 The adapter launches `python -m jmeter_executor` without a shell, supplies only a
@@ -119,6 +121,13 @@ Example successful MCP tool result:
 `JMETER_MCP_TIMEOUT_SECONDS` controls the outer adapter timeout and defaults to
 `JMETER_TIMEOUT_SECONDS + 30`. Executor configuration remains deployment-owned;
 none of these settings can be changed by an MCP tool request.
+
+`jmeter_artifact_manifest` returns the executor-computed SHA-256 digest and byte
+size for the approved JMX plan, JTL results, JMeter log, dashboard entry point,
+and final `run.json`. Missing artifacts are represented explicitly with
+`exists: false`; hash values are never fabricated. The evidence payload is
+versioned as `pe.jmeter.evidence.v1` for ingestion by the Persona Engineering
+Ledger.
 
 The JSON envelope is versioned as `pe.jmeter.cli.v1`. Exit codes are stable:
 

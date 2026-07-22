@@ -82,6 +82,11 @@ def build_parser() -> argparse.ArgumentParser:
     header_parser = subparsers.add_parser("jtl-header", help="Return JTL CSV columns")
     header_parser.add_argument("--run-id", required=True)
 
+    manifest_parser = subparsers.add_parser(
+        "artifact-manifest", help="Return SHA-256 evidence for run artifacts"
+    )
+    manifest_parser.add_argument("--run-id", required=True)
+
     return parser
 
 
@@ -173,6 +178,8 @@ def _dispatch(executor: JMeterExecutor, args: argparse.Namespace) -> dict[str, A
         return executor.get_run(args.run_id)
     if args.command == "jtl-header":
         return executor.get_jtl_header(args.run_id)
+    if args.command == "artifact-manifest":
+        return executor.get_artifact_manifest(args.run_id)
     raise CliUsageError(f"Unsupported command: {args.command}")
 
 

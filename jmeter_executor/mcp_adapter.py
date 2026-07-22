@@ -149,6 +149,13 @@ class JMeterMcpAdapter:
             "jmeter_jtl_header", "jtl-header", ("--run-id", run_id)
         )
 
+    def artifact_manifest(self, *, run_id: str) -> dict[str, Any]:
+        return self._invoke(
+            "jmeter_artifact_manifest",
+            "artifact-manifest",
+            ("--run-id", run_id),
+        )
+
     def _invoke(
         self,
         tool: str,
