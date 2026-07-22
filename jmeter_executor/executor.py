@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import os
 import re
@@ -347,6 +348,36 @@ class JMeterExecutor:
             "columns": [column.strip() for column in columns],
         }
 
+    def get_artifact_manifest(self, run_id: str) -> dict[str, Any]:
+        """Return executor-computed SHA-256 evidence for a run's core artifacts."""
+        paths = self.run_paths(run_id)
+        metadata = self._read_metadata(paths["meta_path"])
+        plan = metadata.get("plan")
+        if not isinstance(plan, str):
+            raise ExecutorError(f"Run metadata has no valid plan: {run_id}")
+        plan_path = self._resolve_plan(plan)
+
+        artifacts = {
+            "test_plan": self._file_evidence(plan_path, self.config.testplans_dir),
+            "jtl": self._file_evidence(paths["jtl_path"], paths["run_dir"]),
+            "jmeter_log": self._file_evidence(paths["log_path"], paths["run_dir"]),
+            "dashboard_index": self._file_evidence(
+                paths["html_dir"] / "index.html", paths["run_dir"]
+            ),
+            "run_metadata": self._file_evidence(
+                paths["meta_path"], paths["run_dir"]
+            ),
+        }
+        return {
+            "ok": True,
+            "schema_version": "pe.jmeter.evidence.v1",
+            "run_id": self.validate_run_id(run_id),
+            "plan": plan,
+            "status": metadata.get("status", "unknown"),
+            "generated_at": self._iso_timestamp(time.time()),
+            "artifacts": artifacts,
+        }
+
     def run_paths(self, run_id: str) -> dict[str, Path]:
         rid = self.validate_run_id(run_id)
         run_dir = self.config.runs_dir / rid
@@ -471,6 +502,28 @@ class JMeterExecutor:
             "log_exists": paths["log_path"].is_file(),
             "html_exists": paths["html_dir"].is_dir(),
         }
+
+    def _file_evidence(self, path: Path, root: Path) -> dict[str, Any]:
+        self._assert_within(path, root, "artifact")
+        evidence: dict[str, Any] = {
+            "path": str(path),
+            "exists": path.is_file(),
+            "size_bytes": None,
+            "sha256": None,
+        }
+        if not evidence["exists"]:
+            return evidence
+
+        digest = hashlib.sha256()
+        try:
+            with path.open("rb") as handle:
+                while chunk := handle.read(1024 * 1024):
+                    digest.update(chunk)
+                evidence["size_bytes"] = os.fstat(handle.fileno()).st_size
+        except OSError as exc:
+            raise ExecutorError(f"Unable to hash artifact {path}: {exc}") from exc
+        evidence["sha256"] = digest.hexdigest()
+        return evidence
 
     def _public_run(self, metadata: Mapping[str, Any], paths: Mapping[str, Path]) -> dict[str, Any]:
         status = str(metadata.get("status", "unknown"))

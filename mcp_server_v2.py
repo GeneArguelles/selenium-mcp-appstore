@@ -356,6 +356,15 @@ def jmeter_jtl_header(run_id: str) -> dict:
     return JMETER.jtl_header(run_id=run_id)
 
 
+@mcp.tool(
+    name="jmeter_artifact_manifest",
+    annotations={"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+)
+def jmeter_artifact_manifest(run_id: str) -> dict:
+    """Return SHA-256 hashes and sizes for a run's core evidence artifacts."""
+    return JMETER.artifact_manifest(run_id=run_id)
+
+
 # -----------------------------------------------------------------------------
 # Starlette app shell (health + canonical redirect + MCP mount)
 # -----------------------------------------------------------------------------

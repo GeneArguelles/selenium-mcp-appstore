@@ -48,7 +48,8 @@ for tool in \
   jmeter_run \
   jmeter_status \
   jmeter_run_details \
-  jmeter_jtl_header
+  jmeter_jtl_header \
+  jmeter_artifact_manifest
 do
   echo "$TOOLS_JSON" | jq -e --arg tool "$tool" \
     '.result.tools | any(.name == $tool)' >/dev/null
@@ -98,6 +99,16 @@ HEADER_RESULT=$(echo "$HEADER_JSON" | jq -c '.result.content[0].text | fromjson'
 echo "$HEADER_RESULT" | jq -e \
   '.ok == true and (.result.columns | index("responseCode") != null)' >/dev/null
 
+MANIFEST_REQUEST=$(jq -nc --arg run_id "$RUN_ID" '
+  {jsonrpc:"2.0",id:7,method:"tools/call",params:{name:"jmeter_artifact_manifest",arguments:{run_id:$run_id}}}')
+MANIFEST_JSON=$(mcp_request "$MANIFEST_REQUEST")
+MANIFEST_RESULT=$(echo "$MANIFEST_JSON" | jq -c '.result.content[0].text | fromjson')
+echo "$MANIFEST_RESULT" | jq -e '
+  .ok == true and
+  .result.schema_version == "pe.jmeter.evidence.v1" and
+  ([.result.artifacts[] | select(.exists == true and (.sha256 | test("^[a-f0-9]{64}$")))] | length == 5)
+' >/dev/null
+
 jq -n \
   --arg run_id "$RUN_ID" \
   --arg session_id "$SID" \
@@ -109,6 +120,7 @@ jq -n \
     mcp_session_id: $session_id,
     adapter_schema: "pe.jmeter.mcp.v1",
     executor_schema: "pe.jmeter.cli.v1",
+    evidence_schema: "pe.jmeter.evidence.v1",
     run_id: $run_id,
     status: $status
   }'

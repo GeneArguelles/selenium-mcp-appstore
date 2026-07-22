@@ -112,6 +112,9 @@ class JMeterCliTests(unittest.TestCase):
         status, status_payload = self.invoke("status", "--run-id", "abcdef12")
         details, details_payload = self.invoke("run-details", "--run-id", "abcdef12")
         header, header_payload = self.invoke("jtl-header", "--run-id", "abcdef12")
+        manifest, manifest_payload = self.invoke(
+            "artifact-manifest", "--run-id", "abcdef12"
+        )
 
         self.assertEqual(run.returncode, 0)
         self.assertTrue(run_payload["ok"])
@@ -123,6 +126,14 @@ class JMeterCliTests(unittest.TestCase):
         self.assertIn("<redacted>", details_payload["result"]["stdout"])
         self.assertEqual(header.returncode, 0)
         self.assertIn("elapsed", header_payload["result"]["columns"])
+        self.assertEqual(manifest.returncode, 0)
+        self.assertEqual(
+            manifest_payload["result"]["schema_version"], "pe.jmeter.evidence.v1"
+        )
+        self.assertRegex(
+            manifest_payload["result"]["artifacts"]["jtl"]["sha256"],
+            r"^[a-f0-9]{64}$",
+        )
 
     def test_validation_not_found_conflict_and_run_failure_exit_codes(self) -> None:
         invalid, invalid_payload = self.invoke(

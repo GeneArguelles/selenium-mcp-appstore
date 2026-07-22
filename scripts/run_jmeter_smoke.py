@@ -130,6 +130,20 @@ def main() -> int:
         status = _invoke_cli(["status", "--run-id", RUN_ID], environment)["result"]
         if status["status"] != "completed":
             raise AssertionError(f"Unexpected CLI status result: {status}")
+        manifest = _invoke_cli(
+            ["artifact-manifest", "--run-id", RUN_ID], environment
+        )["result"]
+        if manifest.get("schema_version") != "pe.jmeter.evidence.v1":
+            raise AssertionError(f"Unexpected evidence manifest: {manifest}")
+        expected_artifacts = {
+            "test_plan", "jtl", "jmeter_log", "dashboard_index", "run_metadata"
+        }
+        if set(manifest.get("artifacts", {})) != expected_artifacts:
+            raise AssertionError(f"Incomplete evidence manifest: {manifest}")
+        for name, artifact in manifest["artifacts"].items():
+            digest = artifact.get("sha256")
+            if not artifact.get("exists") or not isinstance(digest, str) or len(digest) != 64:
+                raise AssertionError(f"Invalid evidence for {name}: {artifact}")
 
         jtl_path = Path(result["jtl_path"])
         dashboard = Path(result["html_dir"]) / "index.html"
@@ -148,6 +162,11 @@ def main() -> int:
             "status": result["status"],
             "dashboard": str(dashboard.relative_to(PROJECT_ROOT)),
             "jtl": str(jtl_path.relative_to(PROJECT_ROOT)),
+            "evidence_schema": manifest["schema_version"],
+            "artifact_sha256": {
+                name: artifact["sha256"]
+                for name, artifact in manifest["artifacts"].items()
+            },
             **_assert_jtl(jtl_path),
         }
         print(json.dumps(evidence, indent=2, sort_keys=True))
