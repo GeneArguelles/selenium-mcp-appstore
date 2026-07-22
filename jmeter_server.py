@@ -228,7 +228,13 @@ def jmeter_run(payload: dict = Body(...)):
     plan = payload.get("plan")
     run_id = payload.get("run_id")
     extra_args = payload.get("extra_args")
-    return jmeter_tools.run_test(plan=plan, run_id=run_id, extra_args=extra_args)
+    properties = payload.get("properties")
+    return jmeter_tools.run_test(
+        plan=plan,
+        run_id=run_id,
+        extra_args=extra_args,
+        properties=properties,
+    )
 
 @app.get("/jmeter/run/{run_id}")
 def jmeter_run_status(run_id: str):
