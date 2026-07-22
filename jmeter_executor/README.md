@@ -76,6 +76,50 @@ by caller-controlled path flags:
 `JMETER_ALLOWED_PROPERTIES`. Property values must contain non-secret performance
 parameters because JMeter receives them as process arguments.
 
+## Persona Engineering MCP adapter
+
+The canonical FastMCP server in `mcp_server_v2.py` exposes seven constrained
+JMeter tools through `JMeterMcpAdapter`:
+
+```text
+jmeter_ping
+jmeter_version
+jmeter_list_plans
+jmeter_run
+jmeter_status
+jmeter_run_details
+jmeter_jtl_header
+```
+
+The adapter launches `python -m jmeter_executor` without a shell, supplies only a
+small environment allowlist, validates the CLI schema and exit-code consistency,
+and wraps the response as `pe.jmeter.mcp.v1`. A single server process accepts at
+most one active `jmeter_run`; a concurrent request receives a structured
+`RunBusyError` instead of joining an unbounded queue.
+
+Example successful MCP tool result:
+
+```json
+{
+  "schema_version": "pe.jmeter.mcp.v1",
+  "tool": "jmeter_run",
+  "ok": true,
+  "executor": {
+    "schema_version": "pe.jmeter.cli.v1",
+    "command": "run",
+    "exit_code": 0
+  },
+  "result": {
+    "run_id": "ca110002",
+    "status": "completed"
+  }
+}
+```
+
+`JMETER_MCP_TIMEOUT_SECONDS` controls the outer adapter timeout and defaults to
+`JMETER_TIMEOUT_SECONDS + 30`. Executor configuration remains deployment-owned;
+none of these settings can be changed by an MCP tool request.
+
 The JSON envelope is versioned as `pe.jmeter.cli.v1`. Exit codes are stable:
 
 | Code | Meaning |

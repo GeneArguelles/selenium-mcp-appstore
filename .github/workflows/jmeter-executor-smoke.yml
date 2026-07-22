@@ -3,14 +3,17 @@ name: JMeter executor smoke
 on:
   push:
     branches:
-      - "codex/jmeter-executor-*"
+      - "codex/jmeter-*"
   pull_request:
     paths:
       - ".github/workflows/jmeter-executor-smoke.yml"
       - "Dockerfile"
       - "jmeter_executor/**"
+      - "mcp_server_v2.py"
       - "requirements.txt"
+      - "scripts/run_jmeter_mcp_smoke.sh"
       - "scripts/run_jmeter_smoke.py"
+      - "scripts/serve_jmeter_smoke_target.py"
       - "testplans/**"
       - "tests/**"
       - "tools/jmeter_tools.py"
@@ -44,3 +47,39 @@ jobs:
           --entrypoint python
           selenium-mcp-jmeter-smoke:${{ github.sha }}
           scripts/run_jmeter_smoke.py
+
+      - name: Start MCP-to-JMeter smoke server
+        run: >-
+          docker run --rm --detach
+          --name jmeter-mcp-smoke
+          --publish 127.0.0.1:8000:8000
+          --env HOST=0.0.0.0
+          --env PORT=8000
+          --env JMETER_TIMEOUT_SECONDS=120
+          --env JMETER_MCP_TIMEOUT_SECONDS=150
+          --env JMETER_ALLOWED_PROPERTIES=smoke_host,smoke_path,smoke_port,smoke_protocol
+          --entrypoint sh
+          selenium-mcp-jmeter-smoke:${{ github.sha }}
+          -c 'python scripts/serve_jmeter_smoke_target.py & exec python mcp_server_v2.py'
+
+      - name: Wait for MCP server
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8000/health >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs jmeter-mcp-smoke
+          exit 1
+
+      - name: Order a real JMeter run through MCP
+        run: bash scripts/run_jmeter_mcp_smoke.sh
+
+      - name: Show MCP smoke server logs
+        if: always()
+        run: docker logs jmeter-mcp-smoke
+
+      - name: Stop MCP smoke server
+        if: always()
+        run: docker stop jmeter-mcp-smoke

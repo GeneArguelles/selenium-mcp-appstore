@@ -8,11 +8,13 @@ from .executor import (
     RunNotFoundError,
     ValidationError,
 )
+from .mcp_adapter import JMeterMcpAdapter
 
 __all__ = [
     "ExecutorConfig",
     "ExecutorError",
     "JMeterExecutor",
+    "JMeterMcpAdapter",
     "RunConflictError",
     "RunNotFoundError",
     "ValidationError",

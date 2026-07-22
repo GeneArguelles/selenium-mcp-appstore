@@ -26,6 +26,21 @@ All tools are **session-based** (create a session once, then perform multiple st
 - `close_session(session_id)`
 - `reap_idle_sessions(max_idle_seconds?)`
 
+The server also exposes policy-constrained Persona Engineering performance tools:
+
+- `jmeter_ping()`
+- `jmeter_version(include_raw?)`
+- `jmeter_list_plans()`
+- `jmeter_run(plan, run_id?, properties?)`
+- `jmeter_status(run_id)`
+- `jmeter_run_details(run_id)`
+- `jmeter_jtl_header(run_id)`
+
+These tools invoke the isolated executor as a separate process and return the
+versioned `pe.jmeter.mcp.v1` response contract. They do not accept arbitrary
+executables, filesystem paths, environment variables, target URLs, or raw JMeter
+arguments.
+
 ## JMeter executor CLI
 
 The repository also contains a policy-constrained JMeter executor intended for
@@ -59,6 +74,11 @@ Optional env vars:
 - `HOST` (default `0.0.0.0`)
 - `CHROME_BINARY` (if Chrome isn’t on PATH)
 - `CHROMEDRIVER_PATH` (if chromedriver isn’t on PATH)
+- `JMETER_PROJECT_ROOT` (defaults to this repository)
+- `JMETER_BIN` (defaults to `jmeter`)
+- `JMETER_TIMEOUT_SECONDS` (executor timeout; default `600`)
+- `JMETER_MCP_TIMEOUT_SECONDS` (adapter timeout; defaults to executor timeout + 30)
+- `JMETER_ALLOWED_PROPERTIES` (comma-separated deployment policy)
 
 ## Deploy
 
@@ -82,6 +102,11 @@ This repo includes a curl-based MCP smoke test that:
 - takes a screenshot (`smoke.png`)
 - closes the browser session
 
+The JMeter CI workflow also starts the FastMCP server, identifies its client as
+`persona-engineering-smoke`, orders a checked-in plan through `jmeter_run`, and
+queries the resulting status and JTL header through MCP. This proves MCP ordering;
+ledger, assessor, and normalized reporting integration remain separate milestones.
+
 ### Prereqs
 - `bash`
 - `curl`
@@ -92,3 +117,4 @@ This repo includes a curl-based MCP smoke test that:
 ```bash
 chmod +x smoke_mcp.sh
 ./smoke_mcp.sh
+```
