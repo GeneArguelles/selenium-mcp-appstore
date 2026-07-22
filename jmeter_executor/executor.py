@@ -185,10 +185,15 @@ class JMeterExecutor:
             raw,
             re.IGNORECASE,
         ) or re.search(r"\bversion\s*([0-9]+(?:\.[0-9]+)+)\b", raw, re.IGNORECASE)
+        if not match:
+            semantic_versions = re.findall(r"(?<!\d)([0-9]+(?:\.[0-9]+){1,2})(?!\d)", raw)
+            parsed_version = semantic_versions[-1] if semantic_versions else None
+        else:
+            parsed_version = match.group(1)
 
         result: dict[str, Any] = {
             "ok": completed.returncode == 0,
-            "version": match.group(1) if match else None,
+            "version": parsed_version,
             "returncode": completed.returncode,
         }
         if include_raw:

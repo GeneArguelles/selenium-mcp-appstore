@@ -22,7 +22,7 @@ import sys
 import time
 
 if "-v" in sys.argv:
-    print("Apache JMeter (version 5.6.3)")
+    print(r"/_/   \_\_| /_/   \_\____|_| |_|_____|  \___/ 5.6.3")
     raise SystemExit(0)
 
 args = sys.argv[1:]

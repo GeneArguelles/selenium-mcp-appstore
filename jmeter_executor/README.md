@@ -46,3 +46,21 @@ Engineering orchestration layer and are not implemented here.
 `tools/jmeter_tools.py` is retained temporarily as a compatibility adapter for
 the repository's existing FastAPI routes. New code should import
 `jmeter_executor` directly.
+
+## Docker smoke test
+
+The pull-request workflow builds the actual runtime image and runs both the
+unit suite and `scripts/run_jmeter_smoke.py` inside it. The smoke test starts a
+local HTTP target, executes `httpbin_smoke.jmx` through the installed JMeter
+binary, and verifies the resulting JTL, log, and HTML dashboard. It does not
+depend on `httpbin.org` or another public test service.
+
+To run the same checks locally where Docker is installed:
+
+```bash
+docker build --tag selenium-mcp-jmeter-smoke .
+docker run --rm --entrypoint python selenium-mcp-jmeter-smoke \
+  -m unittest discover -s tests -v
+docker run --rm --entrypoint python selenium-mcp-jmeter-smoke \
+  scripts/run_jmeter_smoke.py
+```
