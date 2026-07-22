@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import csv
 import json
+import os
+import subprocess
 import sys
 import threading
 import uuid
@@ -13,11 +15,6 @@ from pathlib import Path
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from jmeter_executor import ExecutorConfig, JMeterExecutor  # noqa: E402
-
-
 RUN_ID = uuid.uuid4().hex[:12]
 
 
@@ -63,40 +60,76 @@ def _assert_jtl(jtl_path: Path) -> dict[str, Any]:
     }
 
 
+def _invoke_cli(arguments: list[str], environment: dict[str, str]) -> dict[str, Any]:
+    completed = subprocess.run(
+        [sys.executable, "-m", "jmeter_executor", *arguments],
+        cwd=PROJECT_ROOT,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise AssertionError(
+            "JMeter CLI failed "
+            f"(exit={completed.returncode}, stdout={completed.stdout!r}, "
+            f"stderr={completed.stderr!r})"
+        )
+    if completed.stderr:
+        raise AssertionError(f"JMeter CLI wrote unexpected stderr: {completed.stderr!r}")
+    try:
+        payload = json.loads(completed.stdout)
+    except json.JSONDecodeError as exc:
+        raise AssertionError(f"JMeter CLI returned invalid JSON: {completed.stdout!r}") from exc
+    if not payload.get("ok"):
+        raise AssertionError(f"JMeter CLI returned an error envelope: {payload}")
+    return payload
+
+
 def main() -> int:
     server = ThreadingHTTPServer(("127.0.0.1", 0), SmokeHandler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
 
     try:
-        executor = JMeterExecutor(
-            ExecutorConfig.for_project(
-                PROJECT_ROOT,
-                timeout_seconds=120,
-                allowed_properties=(
-                    "smoke_host",
-                    "smoke_path",
-                    "smoke_port",
-                    "smoke_protocol",
+        environment = dict(os.environ)
+        environment.update(
+            {
+                "JMETER_PROJECT_ROOT": str(PROJECT_ROOT),
+                "JMETER_TIMEOUT_SECONDS": "120",
+                "JMETER_ALLOWED_PROPERTIES": ",".join(
+                    ("smoke_host", "smoke_path", "smoke_port", "smoke_protocol")
                 ),
-            )
+                "PYTHONPATH": str(PROJECT_ROOT),
+            }
         )
-        version = executor.version()
+        version = _invoke_cli(["version"], environment)["result"]
         if not version["ok"] or version.get("version") != "5.6.3":
             raise AssertionError(f"Unexpected JMeter version result: {version}")
-        result = executor.run(
-            plan="httpbin_smoke.jmx",
-            run_id=RUN_ID,
-            properties={
-                "smoke_host": "127.0.0.1",
-                "smoke_port": server.server_port,
-                "smoke_protocol": "http",
-                "smoke_path": "/get",
-            },
-        )
+        result = _invoke_cli(
+            [
+                "run",
+                "--plan",
+                "httpbin_smoke.jmx",
+                "--run-id",
+                RUN_ID,
+                "--property",
+                "smoke_host=127.0.0.1",
+                "--property",
+                f"smoke_port={server.server_port}",
+                "--property",
+                "smoke_protocol=http",
+                "--property",
+                "smoke_path=/get",
+            ],
+            environment,
+        )["result"]
 
         if not result["ok"]:
             raise AssertionError(f"JMeter execution failed: {result}")
+        status = _invoke_cli(["status", "--run-id", RUN_ID], environment)["result"]
+        if status["status"] != "completed":
+            raise AssertionError(f"Unexpected CLI status result: {status}")
 
         jtl_path = Path(result["jtl_path"])
         dashboard = Path(result["html_dir"]) / "index.html"

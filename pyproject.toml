@@ -7,3 +7,9 @@ dependencies = [
   "pydantic>=2.7",
   "selenium>=4.22",
 ]
+
+[project.scripts]
+jmeter-executor = "jmeter_executor.cli:main"
+
+[tool.setuptools]
+packages = ["jmeter_executor"]

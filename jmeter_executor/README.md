@@ -47,13 +47,53 @@ Engineering orchestration layer and are not implemented here.
 the repository's existing FastAPI routes. New code should import
 `jmeter_executor` directly.
 
+## Machine-readable CLI
+
+The supported automation boundary is `python -m jmeter_executor` (or the
+installed `jmeter-executor` console command). Every operational command writes
+exactly one compact JSON object to standard output. Errors use the same envelope
+and do not write argparse usage text to standard error.
+
+```bash
+python -m jmeter_executor ping
+python -m jmeter_executor version
+python -m jmeter_executor list-plans
+python -m jmeter_executor run --plan httpbin_smoke.jmx --run-id deadbeef
+python -m jmeter_executor status --run-id deadbeef
+python -m jmeter_executor run-details --run-id deadbeef
+python -m jmeter_executor jtl-header --run-id deadbeef
+```
+
+Runtime configuration is supplied by the trusted worker environment rather than
+by caller-controlled path flags:
+
+- `JMETER_PROJECT_ROOT`
+- `JMETER_BIN`
+- `JMETER_TIMEOUT_SECONDS`
+- `JMETER_ALLOWED_PROPERTIES` (comma-separated)
+
+`--property NAME=VALUE` is repeatable, but a name is accepted only when it is in
+`JMETER_ALLOWED_PROPERTIES`. Property values must contain non-secret performance
+parameters because JMeter receives them as process arguments.
+
+The JSON envelope is versioned as `pe.jmeter.cli.v1`. Exit codes are stable:
+
+| Code | Meaning |
+| ---: | --- |
+| `0` | CLI operation completed |
+| `2` | Usage, validation, or policy error |
+| `3` | Run not found |
+| `4` | Run ID already exists |
+| `5` | Executor/configuration failure |
+| `10` | JMeter ran but returned a non-success terminal state |
+
 ## Docker smoke test
 
 The pull-request workflow builds the actual runtime image and runs both the
 unit suite and `scripts/run_jmeter_smoke.py` inside it. The smoke test starts a
-local HTTP target, executes `httpbin_smoke.jmx` through the installed JMeter
-binary, and verifies the resulting JTL, log, and HTML dashboard. It does not
-depend on `httpbin.org` or another public test service.
+local HTTP target, executes `httpbin_smoke.jmx` through the JSON CLI and the
+installed JMeter binary, then verifies the resulting JTL, log, and HTML
+dashboard. It does not depend on `httpbin.org` or another public test service.
 
 To run the same checks locally where Docker is installed:
 

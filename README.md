@@ -26,6 +26,22 @@ All tools are **session-based** (create a session once, then perform multiple st
 - `close_session(session_id)`
 - `reap_idle_sessions(max_idle_seconds?)`
 
+## JMeter executor CLI
+
+The repository also contains a policy-constrained JMeter executor intended for
+Persona Engineering orchestration. Its automation interface emits one versioned
+JSON object per invocation:
+
+```bash
+python -m jmeter_executor ping
+python -m jmeter_executor list-plans
+python -m jmeter_executor run --plan httpbin_smoke.jmx
+python -m jmeter_executor status --run-id <run_id>
+```
+
+See `jmeter_executor/README.md` for the JSON contract, configuration boundary,
+exit codes, security invariants, and Docker smoke-test instructions.
+
 ## Run locally
 
 ```bash
@@ -76,4 +92,3 @@ This repo includes a curl-based MCP smoke test that:
 ```bash
 chmod +x smoke_mcp.sh
 ./smoke_mcp.sh
-
