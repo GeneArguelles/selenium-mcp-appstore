@@ -38,7 +38,7 @@ COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Build-time sanity check (optional but recommended)
-RUN python -c "import mcp_server; print('mcp_server import OK')"
+RUN python -c "import mcp_server_v2; print('mcp_server_v2 import OK')"
 
 # Render sets $PORT automatically
-CMD ["sh", "-lc", "uvicorn mcp_server:app --host 0.0.0.0 --port ${PORT:-10000}"]
+CMD ["python", "mcp_server_v2.py"]

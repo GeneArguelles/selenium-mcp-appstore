@@ -28,6 +28,8 @@ from starlette.routing import Mount, Route
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
+from jmeter_executor import JMeterMcpAdapter
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options as ChromeOptions
@@ -166,6 +168,7 @@ class _SessionManager:
 
 
 SESSIONS = _SessionManager()
+JMETER = JMeterMcpAdapter.from_environment()
 
 
 def _wait_css(driver: webdriver.Chrome, selector: str, timeout_s: int) -> None:
@@ -280,6 +283,77 @@ def screenshot(session_id: str) -> dict:
 def reap_idle_sessions(max_idle_seconds: int = 600) -> dict:
     """Close sessions idle for longer than max_idle_seconds."""
     return {"closed": SESSIONS.reap_idle(max_idle_seconds)}
+
+
+# -----------------------------------------------------------------------------
+# Persona Engineering JMeter tools
+# -----------------------------------------------------------------------------
+
+@mcp.tool(
+    name="jmeter_ping",
+    annotations={"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+)
+def jmeter_ping() -> dict:
+    """Inspect the policy-constrained JMeter executor and its availability."""
+    return JMETER.ping()
+
+
+@mcp.tool(
+    name="jmeter_version",
+    annotations={"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+)
+def jmeter_version(include_raw: bool = False) -> dict:
+    """Return the installed JMeter version through the executor boundary."""
+    return JMETER.version(include_raw=include_raw)
+
+
+@mcp.tool(
+    name="jmeter_list_plans",
+    annotations={"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+)
+def jmeter_list_plans() -> dict:
+    """List checked-in JMX plans approved for execution."""
+    return JMETER.list_plans()
+
+
+@mcp.tool(
+    name="jmeter_run",
+    annotations={"readOnlyHint": False, "destructiveHint": False, "openWorldHint": True},
+)
+def jmeter_run(
+    plan: str,
+    run_id: Optional[str] = None,
+    properties: Optional[dict[str, str]] = None,
+) -> dict:
+    """Synchronously execute an approved JMX plan with allowlisted properties."""
+    return JMETER.run(plan=plan, run_id=run_id, properties=properties)
+
+
+@mcp.tool(
+    name="jmeter_status",
+    annotations={"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+)
+def jmeter_status(run_id: str) -> dict:
+    """Return the terminal summary for a JMeter run identifier."""
+    return JMETER.status(run_id=run_id)
+
+
+@mcp.tool(
+    name="jmeter_run_details",
+    annotations={"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+)
+def jmeter_run_details(run_id: str) -> dict:
+    """Return stored metadata and artifact locations for a JMeter run."""
+    return JMETER.run_details(run_id=run_id)
+
+
+@mcp.tool(
+    name="jmeter_jtl_header",
+    annotations={"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+)
+def jmeter_jtl_header(run_id: str) -> dict:
+    """Return the column names from a completed run's JTL artifact."""
+    return JMETER.jtl_header(run_id=run_id)
 
 
 # -----------------------------------------------------------------------------
