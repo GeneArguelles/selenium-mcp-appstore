@@ -1,0 +1,46 @@
+name: JMeter executor smoke
+
+on:
+  push:
+    branches:
+      - "codex/jmeter-executor-hardening"
+  pull_request:
+    paths:
+      - ".github/workflows/jmeter-executor-smoke.yml"
+      - "Dockerfile"
+      - "jmeter_executor/**"
+      - "requirements.txt"
+      - "scripts/run_jmeter_smoke.py"
+      - "testplans/**"
+      - "tests/**"
+      - "tools/jmeter_tools.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docker-jmeter-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build runtime image
+        run: docker build --tag selenium-mcp-jmeter-smoke:${{ github.sha }} .
+
+      - name: Run executor unit tests in image
+        run: >-
+          docker run --rm
+          --entrypoint python
+          selenium-mcp-jmeter-smoke:${{ github.sha }}
+          -m unittest discover -s tests -v
+
+      - name: Run real JMeter smoke in image
+        run: >-
+          docker run --rm
+          --entrypoint python
+          selenium-mcp-jmeter-smoke:${{ github.sha }}
+          scripts/run_jmeter_smoke.py
