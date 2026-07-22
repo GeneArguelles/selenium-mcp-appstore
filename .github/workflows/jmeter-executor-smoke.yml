@@ -1,6 +1,9 @@
 name: JMeter executor smoke
 
 on:
+  push:
+    branches:
+      - "codex/jmeter-executor-hardening"
   pull_request:
     paths:
       - ".github/workflows/jmeter-executor-smoke.yml"
