@@ -133,6 +133,9 @@ def main() -> int:
         manifest = _invoke_cli(
             ["artifact-manifest", "--run-id", RUN_ID], environment
         )["result"]
+        metrics = _invoke_cli(
+            ["metrics-summary", "--run-id", RUN_ID], environment
+        )["result"]
         if manifest.get("schema_version") != "pe.jmeter.evidence.v1":
             raise AssertionError(f"Unexpected evidence manifest: {manifest}")
         expected_artifacts = {
@@ -144,6 +147,14 @@ def main() -> int:
             digest = artifact.get("sha256")
             if not artifact.get("exists") or not isinstance(digest, str) or len(digest) != 64:
                 raise AssertionError(f"Invalid evidence for {name}: {artifact}")
+        if metrics.get("schema_version") != "pe.jmeter.metrics.v1":
+            raise AssertionError(f"Unexpected metrics summary: {metrics}")
+        if metrics["summary"]["sample_count"] != 1:
+            raise AssertionError(f"Unexpected sample count: {metrics}")
+        if metrics["summary"]["error_count"] != 0:
+            raise AssertionError(f"Unexpected JMeter errors: {metrics}")
+        if metrics["source_jtl"]["sha256"] != manifest["artifacts"]["jtl"]["sha256"]:
+            raise AssertionError("Metrics source JTL does not match evidence manifest")
 
         jtl_path = Path(result["jtl_path"])
         dashboard = Path(result["html_dir"]) / "index.html"
@@ -163,6 +174,8 @@ def main() -> int:
             "dashboard": str(dashboard.relative_to(PROJECT_ROOT)),
             "jtl": str(jtl_path.relative_to(PROJECT_ROOT)),
             "evidence_schema": manifest["schema_version"],
+            "metrics_schema": metrics["schema_version"],
+            "metrics": metrics["summary"],
             "artifact_sha256": {
                 name: artifact["sha256"]
                 for name, artifact in manifest["artifacts"].items()

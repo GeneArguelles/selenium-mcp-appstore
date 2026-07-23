@@ -156,6 +156,13 @@ class JMeterMcpAdapter:
             ("--run-id", run_id),
         )
 
+    def metrics_summary(self, *, run_id: str) -> dict[str, Any]:
+        return self._invoke(
+            "jmeter_metrics_summary",
+            "metrics-summary",
+            ("--run-id", run_id),
+        )
+
     def _invoke(
         self,
         tool: str,

@@ -36,6 +36,7 @@ The server also exposes policy-constrained Persona Engineering performance tools
 - `jmeter_run_details(run_id)`
 - `jmeter_jtl_header(run_id)`
 - `jmeter_artifact_manifest(run_id)`
+- `jmeter_metrics_summary(run_id)`
 
 These tools invoke the isolated executor as a separate process and return the
 versioned `pe.jmeter.mcp.v1` response contract. They do not accept arbitrary

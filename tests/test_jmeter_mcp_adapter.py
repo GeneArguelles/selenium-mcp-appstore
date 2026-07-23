@@ -98,6 +98,7 @@ class JMeterMcpAdapterTests(unittest.TestCase):
         details = self.adapter.run_details(run_id="abcdef12")
         header = self.adapter.jtl_header(run_id="abcdef12")
         manifest = self.adapter.artifact_manifest(run_id="abcdef12")
+        metrics = self.adapter.metrics_summary(run_id="abcdef12")
 
         self.assertTrue(run["ok"])
         self.assertEqual(run["result"]["status"], "completed")
@@ -112,6 +113,12 @@ class JMeterMcpAdapterTests(unittest.TestCase):
         self.assertRegex(
             manifest["result"]["artifacts"]["run_metadata"]["sha256"],
             r"^[a-f0-9]{64}$",
+        )
+        self.assertEqual(metrics["result"]["schema_version"], "pe.jmeter.metrics.v1")
+        self.assertEqual(metrics["result"]["summary"]["sample_count"], 1)
+        self.assertEqual(
+            metrics["result"]["source_jtl"]["sha256"],
+            manifest["result"]["artifacts"]["jtl"]["sha256"],
         )
 
     def test_cli_policy_errors_remain_machine_readable(self) -> None:

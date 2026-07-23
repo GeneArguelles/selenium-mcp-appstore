@@ -79,7 +79,7 @@ parameters because JMeter receives them as process arguments.
 
 ## Persona Engineering MCP adapter
 
-The canonical FastMCP server in `mcp_server_v2.py` exposes eight constrained
+The canonical FastMCP server in `mcp_server_v2.py` exposes nine constrained
 JMeter tools through `JMeterMcpAdapter`:
 
 ```text
@@ -91,6 +91,7 @@ jmeter_status
 jmeter_run_details
 jmeter_jtl_header
 jmeter_artifact_manifest
+jmeter_metrics_summary
 ```
 
 The adapter launches `python -m jmeter_executor` without a shell, supplies only a
@@ -128,6 +129,14 @@ and final `run.json`. Missing artifacts are represented explicitly with
 `exists: false`; hash values are never fabricated. The evidence payload is
 versioned as `pe.jmeter.evidence.v1` for ingestion by the Persona Engineering
 Ledger.
+
+`jmeter_metrics_summary` parses the immutable JTL artifact and returns the
+versioned `pe.jmeter.metrics.v1` contract. It includes sample/success/error
+counts, error rate, approximate wall duration, throughput, byte totals,
+response-code and label counts, plus min/mean/median/p90/p95/p99/max
+distributions for elapsed, latency, and connect time. Percentiles use the
+deterministic nearest-rank method. The response includes the source JTL SHA-256
+so PE can bind every assessment to the exact evidence artifact.
 
 The JSON envelope is versioned as `pe.jmeter.cli.v1`. Exit codes are stable:
 
