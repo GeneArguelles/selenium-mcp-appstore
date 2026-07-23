@@ -365,6 +365,15 @@ def jmeter_artifact_manifest(run_id: str) -> dict:
     return JMETER.artifact_manifest(run_id=run_id)
 
 
+@mcp.tool(
+    name="jmeter_metrics_summary",
+    annotations={"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+)
+def jmeter_metrics_summary(run_id: str) -> dict:
+    """Return deterministic latency, throughput, and error metrics from the JTL."""
+    return JMETER.metrics_summary(run_id=run_id)
+
+
 # -----------------------------------------------------------------------------
 # Starlette app shell (health + canonical redirect + MCP mount)
 # -----------------------------------------------------------------------------

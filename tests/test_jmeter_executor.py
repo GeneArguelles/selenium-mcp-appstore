@@ -136,6 +136,17 @@ class JMeterExecutorTests(unittest.TestCase):
             self.assertGreater(evidence["size_bytes"], 0)
             self.assertRegex(evidence["sha256"], r"^[a-f0-9]{64}$")
 
+        metrics = executor.get_metrics_summary("abcdef12")
+        self.assertEqual(metrics["schema_version"], "pe.jmeter.metrics.v1")
+        self.assertEqual(metrics["summary"]["sample_count"], 1)
+        self.assertEqual(metrics["summary"]["error_count"], 0)
+        self.assertEqual(metrics["summary"]["error_rate"], 0.0)
+        self.assertEqual(metrics["summary"]["elapsed_ms"]["p95"], 12.0)
+        self.assertEqual(
+            metrics["source_jtl"]["sha256"],
+            manifest["artifacts"]["jtl"]["sha256"],
+        )
+
         marker = self.runs / "abcdef12" / "keep.txt"
         marker.write_text("do not delete", encoding="utf-8")
         with self.assertRaises(RunConflictError):
@@ -159,6 +170,38 @@ class JMeterExecutorTests(unittest.TestCase):
         self.assertNotIn("super-sensitive-value", metadata_text)
         self.assertIn("-Jthreads=<redacted>", metadata["command"])
         self.assertEqual(metadata["property_names"], ["threads"])
+
+    def test_metrics_summary_calculates_errors_throughput_and_percentiles(self) -> None:
+        executor = self.executor()
+        executor.run(plan="smoke.jmx", run_id="a55e55ed")
+        jtl = self.runs / "a55e55ed" / "results.jtl"
+        jtl.write_text(
+            "timeStamp,elapsed,label,responseCode,success,Latency,Connect,bytes,sentBytes\n"
+            "1000,100,alpha,200,true,50,10,1000,100\n"
+            "1000,200,alpha,200,true,100,20,2000,200\n"
+            "1000,300,beta,500,false,150,30,3000,300\n"
+            "1000,400,beta,200,true,200,40,4000,400\n",
+            encoding="utf-8",
+        )
+
+        metrics = executor.get_metrics_summary("a55e55ed")
+        summary = metrics["summary"]
+
+        self.assertEqual(summary["sample_count"], 4)
+        self.assertEqual(summary["success_count"], 3)
+        self.assertEqual(summary["error_count"], 1)
+        self.assertEqual(summary["error_rate"], 0.25)
+        self.assertEqual(summary["duration_seconds"], 0.4)
+        self.assertEqual(summary["throughput_per_second"], 10.0)
+        self.assertEqual(summary["received_bytes"], 10000)
+        self.assertEqual(summary["sent_bytes"], 1000)
+        self.assertEqual(summary["response_codes"], {"200": 3, "500": 1})
+        self.assertEqual(summary["samples_by_label"], {"alpha": 2, "beta": 2})
+        self.assertEqual(summary["elapsed_ms"]["mean"], 250.0)
+        self.assertEqual(summary["elapsed_ms"]["median"], 250.0)
+        self.assertEqual(summary["elapsed_ms"]["p90"], 400.0)
+        self.assertEqual(summary["elapsed_ms"]["p95"], 400.0)
+        self.assertEqual(summary["elapsed_ms"]["p99"], 400.0)
 
     def test_timeout_terminates_run_and_records_terminal_status(self) -> None:
         executor = self.executor(

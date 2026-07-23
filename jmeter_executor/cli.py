@@ -87,6 +87,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     manifest_parser.add_argument("--run-id", required=True)
 
+    metrics_parser = subparsers.add_parser(
+        "metrics-summary", help="Return deterministic metrics derived from the JTL"
+    )
+    metrics_parser.add_argument("--run-id", required=True)
+
     return parser
 
 
@@ -180,6 +185,8 @@ def _dispatch(executor: JMeterExecutor, args: argparse.Namespace) -> dict[str, A
         return executor.get_jtl_header(args.run_id)
     if args.command == "artifact-manifest":
         return executor.get_artifact_manifest(args.run_id)
+    if args.command == "metrics-summary":
+        return executor.get_metrics_summary(args.run_id)
     raise CliUsageError(f"Unsupported command: {args.command}")
 
 

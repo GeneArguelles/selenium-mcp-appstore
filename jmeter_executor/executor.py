@@ -3,13 +3,16 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
 import signal
+import statistics
 import subprocess
 import time
 import uuid
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -378,6 +381,114 @@ class JMeterExecutor:
             "artifacts": artifacts,
         }
 
+    def get_metrics_summary(self, run_id: str) -> dict[str, Any]:
+        """Compute deterministic performance metrics from the run's hashed JTL."""
+        paths = self.run_paths(run_id)
+        metadata = self._read_metadata(paths["meta_path"])
+        if metadata.get("status") == "running":
+            raise ExecutorError(f"Metrics are unavailable while run {run_id} is active")
+        jtl_path = paths["jtl_path"]
+        if not jtl_path.is_file():
+            raise RunNotFoundError(f"JTL artifact not found for run: {run_id}")
+
+        elapsed: list[float] = []
+        latency: list[float] = []
+        connect: list[float] = []
+        starts: list[float] = []
+        success_count = 0
+        response_codes: Counter[str] = Counter()
+        samples_by_label: Counter[str] = Counter()
+        received_bytes = 0
+        sent_bytes = 0
+        required_columns = {"timeStamp", "elapsed", "label", "responseCode", "success"}
+
+        try:
+            with jtl_path.open(
+                "r", encoding="utf-8", errors="replace", newline=""
+            ) as handle:
+                reader = csv.DictReader(handle)
+                columns = set(reader.fieldnames or ())
+                missing = sorted(required_columns - columns)
+                if missing:
+                    raise ExecutorError(
+                        f"JTL is missing required columns for run {run_id}: {missing}"
+                    )
+                for row_number, row in enumerate(reader, start=2):
+                    try:
+                        sample_elapsed = float(row["elapsed"])
+                        sample_start = float(row["timeStamp"])
+                        sample_latency = float(row.get("Latency") or 0)
+                        sample_connect = float(row.get("Connect") or 0)
+                        sample_received = int(float(row.get("bytes") or 0))
+                        sample_sent = int(float(row.get("sentBytes") or 0))
+                    except (TypeError, ValueError) as exc:
+                        raise ExecutorError(
+                            f"JTL row {row_number} has invalid numeric data for run {run_id}"
+                        ) from exc
+                    if min(
+                        sample_elapsed,
+                        sample_start,
+                        sample_latency,
+                        sample_connect,
+                        sample_received,
+                        sample_sent,
+                    ) < 0:
+                        raise ExecutorError(
+                            f"JTL row {row_number} has negative metrics for run {run_id}"
+                        )
+                    elapsed.append(sample_elapsed)
+                    starts.append(sample_start)
+                    latency.append(sample_latency)
+                    connect.append(sample_connect)
+                    received_bytes += sample_received
+                    sent_bytes += sample_sent
+                    if str(row["success"]).strip().lower() == "true":
+                        success_count += 1
+                    response_codes[str(row["responseCode"]).strip() or "unknown"] += 1
+                    samples_by_label[str(row["label"]).strip() or "unlabeled"] += 1
+        except OSError as exc:
+            raise ExecutorError(f"Unable to read JTL for run {run_id}: {exc}") from exc
+
+        sample_count = len(elapsed)
+        error_count = sample_count - success_count
+        if sample_count:
+            duration_ms = max(
+                start + sample_elapsed
+                for start, sample_elapsed in zip(starts, elapsed)
+            ) - min(starts)
+            duration_seconds = max(duration_ms / 1000.0, 0.001)
+            error_rate = error_count / sample_count
+            throughput = sample_count / duration_seconds
+        else:
+            duration_seconds = 0.0
+            error_rate = 0.0
+            throughput = 0.0
+
+        return {
+            "ok": True,
+            "schema_version": "pe.jmeter.metrics.v1",
+            "run_id": self.validate_run_id(run_id),
+            "plan": metadata.get("plan"),
+            "status": metadata.get("status", "unknown"),
+            "generated_at": self._iso_timestamp(time.time()),
+            "source_jtl": self._file_evidence(jtl_path, paths["run_dir"]),
+            "summary": {
+                "sample_count": sample_count,
+                "success_count": success_count,
+                "error_count": error_count,
+                "error_rate": round(error_rate, 6),
+                "duration_seconds": round(duration_seconds, 6),
+                "throughput_per_second": round(throughput, 6),
+                "received_bytes": received_bytes,
+                "sent_bytes": sent_bytes,
+                "response_codes": dict(sorted(response_codes.items())),
+                "samples_by_label": dict(sorted(samples_by_label.items())),
+                "elapsed_ms": self._distribution(elapsed),
+                "latency_ms": self._distribution(latency),
+                "connect_ms": self._distribution(connect),
+            },
+        }
+
     def run_paths(self, run_id: str) -> dict[str, Path]:
         rid = self.validate_run_id(run_id)
         run_dir = self.config.runs_dir / rid
@@ -524,6 +635,34 @@ class JMeterExecutor:
             raise ExecutorError(f"Unable to hash artifact {path}: {exc}") from exc
         evidence["sha256"] = digest.hexdigest()
         return evidence
+
+    @staticmethod
+    def _distribution(values: Sequence[float]) -> dict[str, float | None]:
+        if not values:
+            return {
+                "min": None,
+                "max": None,
+                "mean": None,
+                "median": None,
+                "p90": None,
+                "p95": None,
+                "p99": None,
+            }
+        ordered = sorted(values)
+
+        def percentile(percent: int) -> float:
+            rank = max(1, math.ceil((percent / 100) * len(ordered)))
+            return ordered[rank - 1]
+
+        return {
+            "min": round(ordered[0], 6),
+            "max": round(ordered[-1], 6),
+            "mean": round(statistics.fmean(ordered), 6),
+            "median": round(statistics.median(ordered), 6),
+            "p90": round(percentile(90), 6),
+            "p95": round(percentile(95), 6),
+            "p99": round(percentile(99), 6),
+        }
 
     def _public_run(self, metadata: Mapping[str, Any], paths: Mapping[str, Path]) -> dict[str, Any]:
         status = str(metadata.get("status", "unknown"))

@@ -115,6 +115,9 @@ class JMeterCliTests(unittest.TestCase):
         manifest, manifest_payload = self.invoke(
             "artifact-manifest", "--run-id", "abcdef12"
         )
+        metrics, metrics_payload = self.invoke(
+            "metrics-summary", "--run-id", "abcdef12"
+        )
 
         self.assertEqual(run.returncode, 0)
         self.assertTrue(run_payload["ok"])
@@ -134,6 +137,11 @@ class JMeterCliTests(unittest.TestCase):
             manifest_payload["result"]["artifacts"]["jtl"]["sha256"],
             r"^[a-f0-9]{64}$",
         )
+        self.assertEqual(metrics.returncode, 0)
+        self.assertEqual(
+            metrics_payload["result"]["schema_version"], "pe.jmeter.metrics.v1"
+        )
+        self.assertEqual(metrics_payload["result"]["summary"]["sample_count"], 1)
 
     def test_validation_not_found_conflict_and_run_failure_exit_codes(self) -> None:
         invalid, invalid_payload = self.invoke(

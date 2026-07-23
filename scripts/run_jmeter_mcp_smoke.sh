@@ -49,7 +49,8 @@ for tool in \
   jmeter_status \
   jmeter_run_details \
   jmeter_jtl_header \
-  jmeter_artifact_manifest
+  jmeter_artifact_manifest \
+  jmeter_metrics_summary
 do
   echo "$TOOLS_JSON" | jq -e --arg tool "$tool" \
     '.result.tools | any(.name == $tool)' >/dev/null
@@ -109,6 +110,19 @@ echo "$MANIFEST_RESULT" | jq -e '
   ([.result.artifacts[] | select(.exists == true and (.sha256 | test("^[a-f0-9]{64}$")))] | length == 5)
 ' >/dev/null
 
+METRICS_REQUEST=$(jq -nc --arg run_id "$RUN_ID" '
+  {jsonrpc:"2.0",id:8,method:"tools/call",params:{name:"jmeter_metrics_summary",arguments:{run_id:$run_id}}}')
+METRICS_JSON=$(mcp_request "$METRICS_REQUEST")
+METRICS_RESULT=$(echo "$METRICS_JSON" | jq -c '.result.content[0].text | fromjson')
+JTL_SHA=$(echo "$MANIFEST_RESULT" | jq -r '.result.artifacts.jtl.sha256')
+echo "$METRICS_RESULT" | jq -e --arg jtl_sha "$JTL_SHA" '
+  .ok == true and
+  .result.schema_version == "pe.jmeter.metrics.v1" and
+  .result.summary.sample_count == 1 and
+  .result.summary.error_count == 0 and
+  .result.source_jtl.sha256 == $jtl_sha
+' >/dev/null
+
 jq -n \
   --arg run_id "$RUN_ID" \
   --arg session_id "$SID" \
@@ -121,6 +135,7 @@ jq -n \
     adapter_schema: "pe.jmeter.mcp.v1",
     executor_schema: "pe.jmeter.cli.v1",
     evidence_schema: "pe.jmeter.evidence.v1",
+    metrics_schema: "pe.jmeter.metrics.v1",
     run_id: $run_id,
     status: $status
   }'
