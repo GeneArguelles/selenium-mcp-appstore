@@ -59,6 +59,12 @@ python -m jmeter_executor status --run-id <run_id>
 See `jmeter_executor/README.md` for the JSON contract, configuration boundary,
 exit codes, security invariants, and Docker smoke-test instructions.
 
+The checked-in `blazedemo_booking_smoke.jmx` plan provides an opt-in, bounded
+four-step booking smoke test for `https://blazedemo.com`. Its CI validation uses
+a local fixture and sends no routine workflow traffic to the public site. See
+`jmeter_executor/BLAZEDEMO_SMOKE_RUNBOOK.md` for the governed Persona
+Engineering execution procedure and assessment policy.
+
 ## Run locally
 
 ```bash
