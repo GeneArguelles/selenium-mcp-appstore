@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "codex/jmeter-*"
+      - "codex/blazedemo-*"
   pull_request:
     paths:
       - ".github/workflows/jmeter-executor-smoke.yml"
@@ -12,6 +13,7 @@ on:
       - "mcp_server_v2.py"
       - "requirements.txt"
       - "scripts/run_jmeter_mcp_smoke.sh"
+      - "scripts/run_blazedemo_plan_smoke.py"
       - "scripts/run_jmeter_smoke.py"
       - "scripts/serve_jmeter_smoke_target.py"
       - "testplans/**"
@@ -47,6 +49,13 @@ jobs:
           --entrypoint python
           selenium-mcp-jmeter-smoke:${{ github.sha }}
           scripts/run_jmeter_smoke.py
+
+      - name: Validate BlazeDemo journey against local fixture
+        run: >-
+          docker run --rm
+          --entrypoint python
+          selenium-mcp-jmeter-smoke:${{ github.sha }}
+          scripts/run_blazedemo_plan_smoke.py
 
       - name: Start MCP-to-JMeter smoke server
         run: >-

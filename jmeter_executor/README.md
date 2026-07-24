@@ -166,3 +166,30 @@ docker run --rm --entrypoint python selenium-mcp-jmeter-smoke \
 docker run --rm --entrypoint python selenium-mcp-jmeter-smoke \
   scripts/run_jmeter_smoke.py
 ```
+
+The workflow also executes `scripts/run_blazedemo_plan_smoke.py`. That check
+runs the complete `blazedemo_booking_smoke.jmx` journey against a deterministic
+local fixture and verifies 24 successful samples, per-step counts, evidence
+hash binding, and the machine-readable metrics summary. It deliberately does
+not send CI traffic to the public BlazeDemo service.
+
+## Governed BlazeDemo smoke test
+
+`testplans/blazedemo_booking_smoke.jmx` models a bounded four-request booking
+journey:
+
+1. Open the home page.
+2. Search Boston to London.
+3. Select a fixed demonstration flight.
+4. Submit a synthetic purchase and verify confirmation.
+
+The plan runs three threads, two iterations, a six-second ramp, and a 750 ms
+pacing delay: 24 total samples. Every response must return HTTP 200 and contain
+the expected page marker. Embedded resources are disabled. The purchase data is
+fixed and synthetic; never substitute real personal or payment information.
+
+The public run must be ordered through the Persona Engineering performance-test
+harness so the request, execution, evidence hashes, assessment, and reports are
+Ledger-bound. It is a functional/performance smoke test, not a load, stress, or
+capacity test. Follow
+`jmeter_executor/BLAZEDEMO_SMOKE_RUNBOOK.md`.
